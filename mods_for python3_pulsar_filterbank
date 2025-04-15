@@ -1,0 +1,403 @@
+Errores por usar compliador de python 3 en código de python 2
+
+-revisar el make!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+-cambio en make file ya que no se admite el parámetro opcional en -grcc -d .pulsar_filterbank_uhd.grc (lo he borrado)--------->   pulsar_filterbank_uhd.py: pulsar_filterbank_uhd.grc
+
+												   			             -grcc  pulsar_filterbank_uhd.grc
+
+														    	          pulsar_filterbank_osmo.py: pulsar_filterbank_osmo.grc
+																     -grcc  pulsar_filterbank_osmo.grc
+
+
+
+-error en fichero Folder_Block en  for i in range(l/self.flen):------------------>for i in range(int(l/self.flen)): ya que esa operación da float y debe ser entero el índice
+!!!!!!para que los cambios se guarden en este caso debe ser editado el archivo que contiene el flowdiagram de gnuradio y buscar justo donde esta ese bloque inyectado.!!!!
+
+-error en avg /= float(len(avg_window)), avg_window = smooth_fft[frac:-frac]----->avg_window = smooth_fft[frac:-(frac+1)] ,para ciertos valores de fbsize da 0=frac entonces esa operación daba una lista vacía. 
+    
+-error en  print "No rx_time tag, start time will be approximate." ----------> faltan paréntesis  print ("No rx_time tag, start time will be approximate.")
+
+-error en  trim_fft = fft[ff:-ff], ff no es entero y por lo tanto no es índice válido, cambio en ff = lf/10 ------------------>ff = int(lf/10)
+
+-error en  nfft = fft[0:len(fft)/2], puede no ser entera la división y por lo tanto no es índice válido, cambio --------------------------------->nfft = fft[0:int(len(fft)/2)]
+
+-cambio preventivo para mantener el tipo entero  en hours = itime/3600------------------>hours = itime//3600
+    		     				   minutes = (itime-(hours*3600))/60--->minutes = (itime-(hours*3600))//60
+    		     				   
+-desactivación del bloque UHD USRP source y activacion de Osmocom source ya que BladeRF funciona con la libreria Oscom, cambio de parámetros en dicho bloque ya que no son correctos,MB0 clock-------> default , ya que daba error con clock source la >BladeRf al compilarlo.Se ha añadido el parámetro "bladerf=0,nchan=1" en Device_arguments
+
+-cambio preventivo en      inf = open(dataname, "r")--------------------------> inf = open(dataname, "rb")
+            		   outf = open(header_args["outfile"], "a")-----------> outf = open(header_args["outfile"], "ab")
+ya que los datos del archivo con la cabecera están en binario, varios cambios para debug en el codigo original con 2 ficheros de salida que muestran el estado en varios puntos.
+            					    	       	          
+-fallo función update_header() no es instanciada en ninguna parte del script de gnu radio por lo que el archivo final no es generado con los datos correctos-------> creación de un bloqe de GnuRadio del tipo Variable con el id=update_header y value=fb_helper.update_header(rx_time_tags, runtime, swidth), runtime tiempo de observación y swidth tamaño muestra.!!!!!!!!!!!!!!!Falta arreglar Rx_time que es el diccionario de encima de update_header() y falta ver que parametro es exactamente pacer en update_header!!!!!!!!!!!!!!!!
+            					    	       	                      					    	       	                      					    	       	          			    	       	           											  											  
+-error en build header info------>concatenar de bytes y str a la vez no posible en python 3.!!!!Importante no borrar el bloque de header_args[] ya que se usa en updateheader aunque aquí no se use.!!!!!
+
+def build_header_info(outfile,source_name,source_ra,source_dec,freq,bw,fbrate,fbsize,rx_time,smpsize):
+    global smpwidth
+    
+    if (smpwidth == 0):
+        smpwidth = smpsize
+
+    header_args["outfile"] = outfile
+    header_args["source_name"] = source_name
+    header_args["source_ra"] = source_ra
+    header_args["source_dec"] = source_dec
+    header_args["freq"] = freq
+    header_args["bw"] = bw
+    header_args["fbrate"] = fbrate
+    header_args["fbsize"] = fbsize
+
+
+    #
+    # Time for one sample, in sec
+    #
+    tsamp=1.0/fbrate
+    
+    #
+    # Frequency offset between channels, in MHz
+    #
+    f_off=bw/fbsize
+    f_off /= 1.0e6
+    f_off *= -1
+    
+    #
+    # Highest frequency represented in FB, in MHz
+    #
+    high_freq = freq+(bw/2.0)
+    high_freq  /= 1.0e6
+    high_freq -= (f_off/2.0)
+    
+    #
+    # Lowest
+    #
+    low_freq = freq-(bw/2.0)
+    low_freq /= 1.0e6
+    low_freq += (f_off/2.0)
+    
+    #
+    # Number of subbands
+    #
+    sub_bands=fbsize
+    
+    #
+    # Determine MJD from file timestamp
+    #
+    if (rx_time == None):
+        fp = open(outfile, "w")
+        t_start = (os.path.getmtime(outfile) / 86400) + 40587
+    else:
+        fp = open(outfile, "w")
+        t_start = rx_time
+ 
+    #
+    # The rest here is mostly due to Guillermo Gancio ganciogm@gmail.com
+    #
+    stx="HEADER_START"
+    etx="HEADER_END"
+    fp.write(struct.pack('i', len(stx))+stx)
+    fp.flush()
+    #--
+    aux="rawdatafile"
+    aux=struct.pack('i', len(aux))+aux
+    fp.write(aux)
+    fp.write(struct.pack('i', len(outfile))+outfile)
+    #--
+    aux="src_raj"
+    aux=struct.pack('i', len(aux))+aux
+    source_ra = convert_sigproct(source_ra)
+    fp.write(aux)
+    aux=struct.pack('d', source_ra)
+    fp.write(aux)
+    fp.flush()
+    #--
+    aux="src_dej"
+    aux=struct.pack('i', len(aux))+aux
+    fp.write(aux)
+    source_dec= convert_sigproct(source_dec)
+    aux=struct.pack('d', source_dec)
+    fp.write(aux)
+    #--
+    aux="az_start"
+    aux=struct.pack('i', len(aux))+aux
+    fp.write(aux)
+    aux=struct.pack('d', 0.0)
+    fp.write(aux)
+    #--
+    aux="za_start"
+    aux=struct.pack('i', len(aux))+aux
+    fp.write(aux)
+    aux=struct.pack('d', 0.0)
+    fp.write(aux)
+    #--
+    aux="tstart"
+    aux=struct.pack('i', len(aux))+aux
+    fp.write(aux)
+    aux=struct.pack('d', t_start)
+    fp.write(aux)
+    #--
+    aux="foff"
+    aux=struct.pack('i', len(aux))+aux
+    fp.write(aux)
+    aux=struct.pack('d', f_off)
+    fp.write(aux)
+    #--
+    aux="fch1"
+    aux=struct.pack('i', len(aux))+aux
+    fp.write(aux)
+    aux=struct.pack('d', high_freq)
+    fp.write(aux)
+    #--
+    aux="nchans"
+    aux=struct.pack('i', len(aux))+aux
+    fp.write(aux)
+    aux=struct.pack('i', sub_bands)
+    fp.write(aux)
+    #--
+    aux="data_type"
+    aux=struct.pack('i', len(aux))+aux
+    fp.write(aux)
+    aux=struct.pack('i', 1)
+    fp.write(aux)
+    #--
+    aux="ibeam"
+    aux=struct.pack('i', len(aux))+aux
+    fp.write(aux)
+    aux=struct.pack('i', 1)
+    fp.write(aux)
+    #--
+    aux="nbits"
+    aux=struct.pack('i', len(aux))+aux
+    fp.write(aux)
+    aux=struct.pack('i', smpsize*8)
+    fp.write(aux)
+    #--
+    aux="tsamp"
+    aux=struct.pack('i', len(aux))+aux
+    fp.write(aux)
+    aux=struct.pack('d', tsamp)
+    fp.write(aux)
+    #--
+    aux="nbeams"
+    aux=struct.pack('i', len(aux))+aux
+    fp.write(aux)
+    aux=struct.pack('i', 1)
+    fp.write(aux)
+    #--
+    aux="nifs"
+    aux=struct.pack('i', len(aux))+aux
+    fp.write(aux)
+    aux=struct.pack('i', 1)
+    fp.write(aux)
+    #--
+    aux="source_name"
+    fp.write(struct.pack('i', len(aux))+aux)
+    fp.write(struct.pack('i', len(source_name))+source_name)
+    #--
+    aux="machine_id"
+    aux=struct.pack('i', len(aux))+aux
+    fp.write(aux)
+    aux=struct.pack('i', 20)
+    fp.write(aux)
+    #--
+    aux="telescope_id"
+    aux=struct.pack('i', len(aux))+aux
+    fp.write(aux)
+    aux=struct.pack('i', 20)
+    fp.write(aux)
+    #--
+    fp.write(struct.pack('i', len(etx))+etx)
+    fp.flush()
+    fp.close()
+    return True
+cambio a -------------------------------------------------------------------------------------------->
+def build_header_info(outfile,source_name,source_ra,source_dec,freq,bw,fbrate,fbsize,rx_time,smpsize):
+    global smpwidth
+    
+    if smpwidth == 0:
+        smpwidth = smpsize
+#####################################################################  
+    header_args["outfile"] = outfile
+    header_args["source_name"] = source_name
+    header_args["source_ra"] = source_ra
+    header_args["source_dec"] = source_dec
+    header_args["freq"] = freq
+    header_args["bw"] = bw
+    header_args["fbrate"] = fbrate
+    header_args["fbsize"] = fbsize
+####################################################################
+    with open(outfile, "wb") as fp:  # "wb" para modo binario
+        stx = "HEADER_START".encode('utf-8')
+        etx = "HEADER_END".encode('utf-8')
+        fp.write(struct.pack('i', len(stx)) + stx)
+
+        def write_string(key, value):
+            key_b = key.encode('utf-8') if isinstance(key, str) else key
+            value_b = value.encode('utf-8') if isinstance(value, str) else value
+            fp.write(struct.pack('i', len(key_b)) + key_b)
+            fp.write(struct.pack('i', len(value_b)) + value_b)
+
+        def write_double(key, value):
+            key_b = key.encode('utf-8') if isinstance(key, str) else key
+            fp.write(struct.pack('i', len(key_b)) + key_b)
+            fp.write(struct.pack('d', value))
+
+        def write_int(key, value):
+            key_b = key.encode('utf-8') if isinstance(key, str) else key
+            fp.write(struct.pack('i', len(key_b)) + key_b)
+            fp.write(struct.pack('i', value))
+
+        outfile_b = outfile.encode('utf-8') if isinstance(outfile, str) else outfile
+        source_name_b = source_name.encode('utf-8') if isinstance(source_name, str) else source_name
+
+        write_string("rawdatafile", outfile_b)
+        write_double("src_raj", source_ra)
+        write_double("src_dej", source_dec)
+        write_double("tstart", rx_time if rx_time is not None else 0.0)
+        write_double("foff", ((bw / fbsize) / 1.0e6) * -1)
+        write_double("fch1", (freq + (bw / 2.0)) / 1.0e6 - ((bw / fbsize / 1.0e6 * -1) / 2.0))
+        write_int("nchans", fbsize)
+        write_int("data_type", 1)
+        write_int("nbits", smpsize * 8)
+        write_double("tsamp", 1.0 / fbrate)
+        write_int("telescope_id", 20)
+
+        fp.write(struct.pack('i', len(etx)) + etx)
+
+
+
+
+
+
+
+Código original en update_header##########################################################################################################################3
+
+#
+# This is called from a 10s-of-Hz poll with a list of "current_tags"
+#
+# We record the time that the first tag flashes past us.
+#
+#
+# We maintain a static tag dictionary for use later by the header
+#  update code
+#
+tag_dict = {} 
+first_tag = None
+def process_tag(tags):
+    global first_tag
+    for tag in tags:
+        tag_dict[pmt.to_python(tag.key)] = pmt.to_python(tag.value)
+        if (first_tag == None):
+            first_tag = time.time()
+    
+#
+# Used to find a tag in the tag_dict
+#
+def get_tag(key):
+    if (key in tag_dict):
+        return (tag_dict[key])
+    else:
+        return None
+        
+didit = False
+#
+# Basically, near the end of the run, concatenates the correct header data
+#  and the live sample data, and produces a final ".fil" output file.
+#
+def update_header(pacer,runtime,smpsize):
+    global didit
+    global first_tag
+    import time
+    import shutil
+    import os
+    global smpwidth
+    
+    if (smpwidth == 0):
+        smpwidth = smpsize
+
+    #
+    # If we haven't seen our first tag yet, data flow hasn't started
+    #
+    # The first tag showing up triggers us to record the local time.
+    #
+    # This allows us to form a rough estimate of when to do the
+    #  file-merge, and also, will be our starting timestamp if the
+    #  data stream never had an rx_time tag.
+    #
+    #
+    if (runtime != None):
+        if (first_tag == None):
+            return None
+        else:
+            endtime = first_tag + runtime
+            endtime -= 0.5
+    #
+    # We're being called as an exit handler
+    # 
+    else:
+        endtime = time.time() - 30.0
+        didit = False
+    
+    #
+    # This little dance ensures that we only update the header and concatenate
+    #   the live sample data when:
+    #
+    #   o   We're close to the end of the run
+    #   o   We haven't already done this
+    #
+    if ((time.time() >= endtime) and didit == False):
+        
+        #
+        # We retrieve the previously-cached "rx_time" tag
+        #
+        # If "none", then we use "first_tag" value
+        #
+        times = get_tag("rx_time")
+        if (times != None):
+            seconds = float(times[0])+float(times[1])
+        else:
+            # 
+            # This will result in a very-rough approximation
+            #
+            if (first_tag != None):
+                seconds = first_tag
+            else:
+                seconds = time.time()
+            print ("No rx_time tag, start time will be approximate.")
+        
+        #
+        # Turn real seconds into MJD
+        #
+        MJD = seconds/86400.0
+        MJD += 40587.0
+        build_header_info(header_args["outfile"],
+            header_args["source_name"],
+            header_args["source_ra"],
+            header_args["source_dec"],
+            header_args["freq"],
+            header_args["bw"],
+            header_args["fbrate"],
+            header_args["fbsize"],
+            MJD,smpsize)
+        dataname = header_args["outfile"].replace(".fil", ".filtmp")
+        try:
+            inf = open(dataname, "r")
+            outf = open(header_args["outfile"], "a")
+            #
+            # Concatenate the live sample data onto the .fil file, which
+            #   at this point, only contains the header data
+            #
+            shutil.copyfileobj(inf, outf)
+            inf.close()
+            outf.close()
+            didit = True
+            #
+            # We don't need the ".filtmp" file anymore, blow it away
+            #
+            os.remove(dataname)
+        except:
+            pass
+
+    return None

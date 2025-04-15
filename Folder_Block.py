@@ -112,7 +112,7 @@ class blk(gr.sync_block):  # other base classes are basic_block, decim_block, in
             self.max_in = l
         elif (l < self.min_in):
             self.min_in = l
-        for i in range(l/self.flen):
+        for i in range(int(l/self.flen)):
             #
             # Do delay/dedispersion logic
             #
