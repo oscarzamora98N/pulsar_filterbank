@@ -1403,90 +1403,77 @@ blocks:
       \ (auto_to_freqs(automask,freq,bw))\n    mf.close()\n\n\n\n#\n# This is called\
       \ from a 10s-of-Hz poll with a list of \"current_tags\"\n#\n# We record the\
       \ time that the first tag flashes past us.\n#\n#\n# We maintain a static tag\
-      \ dictionary for use later by the header\n#  update code\n#\nLOG_FILE = \"/home/rt/pulsar_filterbank/logs/tags.txt\"\
-      \n\ndef log_message(message):\n    with open(LOG_FILE, \"a\") as log:\n    \
-      \    log.write(message + \"\\n\")\n\ntag_dict = {} \nfirst_tag = None\n\ndef\
-      \ process_tag(tags):\n    global first_tag\n    for tag in tags:\n        key\
-      \ = pmt.to_python(tag.key)\n        value = pmt.to_python(tag.value)\n     \
-      \   tag_dict[key] = value\n        log_message(f\"Tag recibido: {key} = {value}\"\
-      )\n\n        if first_tag is None:\n            first_tag = time.time()\n  \
-      \          log_message(f\" first_tag registrado: {first_tag}\")\n\n    \n#\n\
-      # Used to find a tag in the tag_dict\n#\ndef get_tag(key):\n    if (key in tag_dict):\n\
-      \        return (tag_dict[key])\n    else:\n        return None\n        \n\
-      didit = False\n#\n# Basically, near the end of the run, concatenates the correct\
-      \ header data\n#  and the live sample data, and produces a final \".fil\" output\
-      \ file.\n#\n\n\nimport os\nimport shutil\nimport time\n\nLOG_FILEe = \"/home/rt/pulsar_filterbank/logs/update_header.txt\"\
-      \n\ndef log_message2(message2):\n    with open(LOG_FILEe, \"a\") as log:\n \
-      \       log.write(message2 + \"\\n\")\n\ndef update_header(pacer, runtime, smpsize):\n\
-      \    global didit\n    global first_tag\n    import time\n    import shutil\n\
-      \    import os\n    global smpwidth\n\n    if smpwidth == 0:\n        smpwidth\
-      \ = smpsize\n\n    log_message2(f\"Estado de didit antes de procesar: {didit}\"\
-      )\n\n    if runtime is not None:\n        if first_tag is None:\n          \
-      \  log_message2(\" No hay first_tag. No se puede actualizar la cabecera.\")\n\
-      \            return None\n        else:\n            endtime = first_tag + runtime\
-      \ - 0.5\n    else:\n        endtime = time.time() - 30.0\n\n    if (time.time()\
-      \ >= endtime) and not didit:\n        log_message2(\"Actualizando la cabecera\
+      \ dictionary for use later by the header\n#  update code\n#\n#LOG_FILE = \"\
+      /home/rt/pulsar_filterbank/logs/tags.txt\"\n\n#def log_message(message):\n \
+      \   #with open(LOG_FILE, \"a\") as log:\n        #log.write(message + \"\\n\"\
+      )\n\ntag_dict = {} \nfirst_tag = None\n\ndef process_tag(tags):\n    global\
+      \ first_tag\n    for tag in tags:\n        key = pmt.to_python(tag.key)\n  \
+      \      value = pmt.to_python(tag.value)\n        tag_dict[key] = value\n   \
+      \     #log_message(f\"Tag recibido: {key} = {value}\")\n\n        if first_tag\
+      \ is None:\n            first_tag = time.time()\n            #log_message(f\"\
+      \ first_tag registrado: {first_tag}\")\n\n    \n#\n# Used to find a tag in the\
+      \ tag_dict\n#\ndef get_tag(key):\n    if (key in tag_dict):\n        return\
+      \ (tag_dict[key])\n    else:\n        return None\n        \ndidit = False\n\
+      #\n# Basically, near the end of the run, concatenates the correct header data\n\
+      #  and the live sample data, and produces a final \".fil\" output file.\n#\n\
+      \n\nimport os\nimport shutil\nimport time\n\n#LOG_FILEe = \"/home/rt/pulsar_filterbank/logs/update_header.txt\"\
+      \n\n#def log_message2(message2):\n    #with open(LOG_FILEe, \"a\") as log:\n\
+      \        #log.write(message2 + \"\\n\")\n\ndef update_header(pacer, runtime,\
+      \ smpsize):\n    global didit\n    global first_tag\n    import time\n    import\
+      \ shutil\n    import os\n    global smpwidth\n\n    if smpwidth == 0:\n    \
+      \    smpwidth = smpsize\n\n    #log_message2(f\"Estado de didit antes de procesar:\
+      \ {didit}\")\n\n    if runtime is not None:\n        if first_tag is None:\n\
+      \            #log_message2(\" No hay first_tag. No se puede actualizar la cabecera.\"\
+      )\n            return None\n        else:\n            endtime = first_tag +\
+      \ runtime - 0.5\n    else:\n        endtime = time.time() - 30.0\n\n    if (time.time()\
+      \ >= endtime) and not didit:\n        #log_message2(\"Actualizando la cabecera\
       \ y concatenando datos...\")\n\n        # Obtener tiempo MJD\n        times\
       \ = get_tag(\"rx_time\")\n        if times is not None:\n            seconds\
       \ = float(times[0]) + float(times[1])\n        else:\n            seconds =\
-      \ first_tag if first_tag is not None else time.time()\n            log_message2(\"\
+      \ first_tag if first_tag is not None else time.time()\n            #log_message2(\"\
       No se encontr\xF3 rx_time, usando tiempo aproximado.\")\n        MJD = seconds\
-      \ / 86400.0 + 40587.0\n        # Generar la cabecera\n        build_header_info(\n\
-      \            header_args[\"outfile\"],\n            header_args[\"source_name\"\
-      ],\n            header_args[\"source_ra\"],\n            header_args[\"source_dec\"\
-      ],\n            header_args[\"freq\"],\n            header_args[\"bw\"],\n \
-      \           header_args[\"fbrate\"],\n            header_args[\"fbsize\"],\n\
-      \            MJD, smpsize\n        )\n\t#log_message2(\"Cabecera generada\"\
-      )\n\n        dataname = header_args[\"outfile\"].replace(\".fil\", \".filtmp\"\
-      )\n\n        # Verificar existencia de archivos\n        if not os.path.exists(dataname)\
-      \ or os.path.getsize(dataname) == 0:\n            log_message2(\"ERROR:El archivo\
-      \ de datos {dataname} no existe o est\xE1 vac\xEDo.\")\n            return None\n\
-      \n        log_message2(f\"Archivo de datos encontrado: {dataname} ({os.path.getsize(dataname)}\
-      \ bytes)\")\n\n        # Verificar permisos de escritura\n        if not os.access(header_args[\"\
-      outfile\"], os.W_OK):\n            log_message2(f\"ERROR: No tienes permisos\
-      \ de escritura en {header_args['outfile']}\")\n            return\n\n      \
-      \  # Antes de copiar, verificar tama\xF1os\n        log_message2(f\" Antes de\
-      \ copiar: .fil = {os.path.getsize(header_args['outfile'])} bytes, .filtmp =\
-      \ {os.path.getsize(dataname)} bytes\")\n\n        # Intentar copiar los datos\
-      \ \n        try:\n            inf = open(dataname, \"rb\")\n            outf\
+      \ / 86400.0 + 40587.0\n\n        build_header_info(\n            header_args[\"\
+      outfile\"],\n            header_args[\"source_name\"],\n            header_args[\"\
+      source_ra\"],\n            header_args[\"source_dec\"],\n            header_args[\"\
+      freq\"],\n            header_args[\"bw\"],\n            header_args[\"fbrate\"\
+      ],\n            header_args[\"fbsize\"],\n            MJD, smpsize\n       \
+      \ )\n        dataname = header_args[\"outfile\"].replace(\".fil\", \".filtmp\"\
+      )\n\n        try:\n            inf = open(dataname, \"rb\")\n            outf\
       \ = open(header_args[\"outfile\"], \"ab\")\n            #\n            # Concatenate\
       \ the live sample data onto the .fil file, which\n            #   at this point,\
       \ only contains the header data\n            #\n            shutil.copyfileobj(inf,\
-      \ outf)\n            log_message2(f\"copiandooo\")\n            inf.close()\n\
+      \ outf)\n            #log_message2(f\"copiandooo\")\n            inf.close()\n\
       \            outf.close()\n            didit = True\n            #\n       \
       \     # We don't need the \".filtmp\" file anymore, blow it away\n         \
-      \   #\n            os.remove(dataname)#################################################################################################################\
-      \ line anull debuging\n            log_message2(f\" bytes concatenados correctamente\
-      \ en {header_args['outfile']} ({os.path.getsize(header_args['outfile'])} bytes)\"\
-      )\n            didit = True  # Marcar como hecho solo si la copia se realiz\xF3\
-      \ correctamente\n\n        except Exception as e:\n            log_message2(f\"\
-      ERROR al copiar datos: {e}\")\n\n    return None\n\ndef get_swidth():\n    return\
-      \ smpwidth\n\n#\n# Calculate a \"static\" RFI mask--basically a vector of either\
-      \ 1.0 or 0.0\n#   depending on whether this bin is \"in\" or excised\n#\n# Input\
-      \ is an RFI list, as a string, with comma-separated frequency values\n#   in\
-      \ Hz.\n#\n# This mask will get multiplied by the filterbank outputs--so at a\
-      \ position\n#   with a \"1.0\", that filterbank bin will be included, else it\
-      \ won't.\n#\ndef static_mask(freq,bw,fbsize,rfilist):\n    \n    #\n    # If\
-      \ no RFI list, the mask is all 1.0\n    #\n    if (rfilist == \"\" or len(rfilist)\
-      \ == 0 or rfilist == None):\n        return ([1.0]*fbsize)\n    \n    #\n  \
-      \  # Step size is the bandwidth over the filterbank size\n    #   (bin width,\
-      \ basically, in Hz)\n    #\n    step = bw/fbsize\n    start = freq-(bw/2.0)\n\
-      \    end = freq+(bw/2.0)\n    \n    #\n    # Parse the RFI list, do a little\
-      \ sanity checking\n    #  on the values.\n    #\n    rfi = rfilist.split(\"\
-      ,\")\n    mask = [1.0]*fbsize\n    for r in rfi:\n        try:\n           \
-      \ ndx = float(r)-start\n            ndx = ndx/step\n            ndx = int(ndx)\n\
-      \            if (ndx >= 0 and ndx < len(mask)):\n                mask[ndx] =\
-      \ 0.0\n        except:\n            pass\n    mask.reverse()\n    return(mask)\n\
-      \n#\n# Compute a \"dynamic mask\".  This is part of a two-stage process for\n\
-      #  implementing spectral-based RFI excision.  The first stage \"blanks\"\n#\
-      \  the excised channels.  The second stage arranges for the \"blanked\"\n# \
-      \ channels to have a median estimate +/- a small amount of noise\n#  in them.\
-      \  This is better than a sudden \"empty\" channel for post-facto\n#  folding.\n\
-      #\n# Since this second mask is incorporated by a vector addition operation,\
-      \ the\n#  \"good\" channels will have a 0.0 in the mask, and the \"bad\" channels\n\
-      #  will have the locally-estimated mean in them.\n#\ncount=0\ndeviation=0.0\n\
-      automask=None\ncurrent_estimate=0.0\ndef dynamic_mask(fft,smask,thresh):\n \
-      \   global count\n    global deviation\n    global automask\n    global current_estimate\n\
+      \   #\n            os.remove(dataname)###line anull debuging\n            #log_message2(f\"\
+      \ bytes concatenados correctamente en {header_args['outfile']} ({os.path.getsize(header_args['outfile'])}\
+      \ bytes)\")\n            didit = True  \n\n        except:\n            pass\n\
+      \n    return None\n\ndef get_swidth():\n    return smpwidth\n\n#\n# Calculate\
+      \ a \"static\" RFI mask--basically a vector of either 1.0 or 0.0\n#   depending\
+      \ on whether this bin is \"in\" or excised\n#\n# Input is an RFI list, as a\
+      \ string, with comma-separated frequency values\n#   in Hz.\n#\n# This mask\
+      \ will get multiplied by the filterbank outputs--so at a position\n#   with\
+      \ a \"1.0\", that filterbank bin will be included, else it won't.\n#\ndef static_mask(freq,bw,fbsize,rfilist):\n\
+      \    \n    #\n    # If no RFI list, the mask is all 1.0\n    #\n    if (rfilist\
+      \ == \"\" or len(rfilist) == 0 or rfilist == None):\n        return ([1.0]*fbsize)\n\
+      \    \n    #\n    # Step size is the bandwidth over the filterbank size\n  \
+      \  #   (bin width, basically, in Hz)\n    #\n    step = bw/fbsize\n    start\
+      \ = freq-(bw/2.0)\n    end = freq+(bw/2.0)\n    \n    #\n    # Parse the RFI\
+      \ list, do a little sanity checking\n    #  on the values.\n    #\n    rfi =\
+      \ rfilist.split(\",\")\n    mask = [1.0]*fbsize\n    for r in rfi:\n       \
+      \ try:\n            ndx = float(r)-start\n            ndx = ndx/step\n     \
+      \       ndx = int(ndx)\n            if (ndx >= 0 and ndx < len(mask)):\n   \
+      \             mask[ndx] = 0.0\n        except:\n            pass\n    mask.reverse()\n\
+      \    return(mask)\n\n#\n# Compute a \"dynamic mask\".  This is part of a two-stage\
+      \ process for\n#  implementing spectral-based RFI excision.  The first stage\
+      \ \"blanks\"\n#  the excised channels.  The second stage arranges for the \"\
+      blanked\"\n#  channels to have a median estimate +/- a small amount of noise\n\
+      #  in them.  This is better than a sudden \"empty\" channel for post-facto\n\
+      #  folding.\n#\n# Since this second mask is incorporated by a vector addition\
+      \ operation, the\n#  \"good\" channels will have a 0.0 in the mask, and the\
+      \ \"bad\" channels\n#  will have the locally-estimated mean in them.\n#\ncount=0\n\
+      deviation=0.0\nautomask=None\ncurrent_estimate=0.0\ndef dynamic_mask(fft,smask,thresh):\n\
+      \    global count\n    global deviation\n    global automask\n    global current_estimate\n\
       \   \n    \n    \n    if (automask == None):\n        automask = [1.0]*len(fft)\n\
       \    \n    #\n    # Our ultimate mask is based on both the user-input static\
       \ mask\n    #  and the dynamically-determined mask\n    #\n    smask = list(numpy.multiply(smask,automask))\n\
@@ -1800,7 +1787,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1096, 1676.0]
+    coordinate: [608, 1740.0]
     rotation: 0
     state: enabled
 - name: note_0
@@ -2270,7 +2257,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [976, 1692.0]
+    coordinate: [1104, 1692.0]
     rotation: 0
     state: enabled
 - name: prefix
@@ -2355,7 +2342,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [896, 1788.0]
+    coordinate: [1256, 1788.0]
     rotation: 0
     state: enabled
 - name: resolution
@@ -2418,12 +2405,12 @@ blocks:
     label: Enable Roll-off correction
     short_id: ''
     type: intx
-    value: '1'
+    value: '0'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1248, 1780.0]
+    coordinate: [760, 1652.0]
     rotation: 0
     state: enabled
 - name: runtime
