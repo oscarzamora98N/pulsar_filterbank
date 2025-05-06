@@ -703,7 +703,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1224, 272]
+    coordinate: [1232, 280.0]
     rotation: 0
     state: enabled
 - name: blocks_complex_to_float_0
@@ -839,7 +839,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1736, 108.0]
+    coordinate: [1744, 100.0]
     rotation: 0
     state: enabled
 - name: blocks_head_0
@@ -965,7 +965,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1424, 260.0]
+    coordinate: [1440, 252.0]
     rotation: 0
     state: enabled
 - name: blocks_multiply_const_vxx_0
@@ -1001,7 +1001,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1168, 124]
+    coordinate: [1168, 156.0]
     rotation: 0
     state: enabled
 - name: blocks_multiply_const_vxx_2
@@ -1074,7 +1074,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [632, 1084.0]
+    coordinate: [600, 1084.0]
     rotation: 0
     state: enabled
 - name: blocks_stream_to_vector_0
@@ -1420,7 +1420,7 @@ blocks:
       \ fft_cnt += 1\n        smooth_fft = numpy.add(fft,smooth_fft)\n        last_smooth\
       \ = time.time()\n    #\n    # Not yet time\n    #\n    if (time.time() < next_fft):\n\
       \        return\n    \n    #\n    # Schedule our next one\n    #\n    next_fft\
-      \ = time.time() + 10.0\n \n    #\n    # Get current time, break out into \"\
+      \ = time.time() + 10.0 \n \n    #\n    # Get current time, break out into \"\
       struct tm\" style time fields\n    #\n    ltp = time.gmtime(time.time())\n \
       \   \n    #\n    # Constract filename from parts\n    #\n    date = \"%04d%02d%02d%02d\"\
       \ % (ltp.tm_year, ltp.tm_mon, ltp.tm_mday, ltp.tm_hour)\n    fp = open(prefix+\"\
@@ -1557,7 +1557,7 @@ blocks:
       \ correction\n#\n# Use the middle 8 bins as an average to normalize to\n#\n\
       last_correct = time.time()\ncorrect_state = 0\ncorrection = [0.0]\ndef get_correction(fbsize,correct,pacer):\n\
       \    global last_correct\n    global smooth_fft\n    global fft_cnt\n    global\
-      \ correct_state\n    global correction\n\n    #\n    # They haven't asked for\
+      \ correct_state\n    global correction\n    #\n    # They haven't asked for\
       \ correction\n    #\n    if (correct == 0):\n        return [1.0]*fbsize\n \
       \   \n    #\n    # If time to return a correction estimate\n    #\n    if ((time.time()\
       \ - last_correct) > 90):\n        # Compute correction if we haven't already\
@@ -1568,39 +1568,39 @@ blocks:
       \            # Reduce smooth by fft_cnt\n            #\n            smooth_fft\
       \ = numpy.divide(smooth_fft,fft_cnt)\n            fft_cnt = 1\n            \n\
       \            #\n            # Produce the \"window\" over which we'll average\n\
-      \            #\n            avg_window = smooth_fft[frac:-(frac+1)]\n      \
-      \      \n            #\n            # Average that \"window\"\n            #\n\
-      \            avg = sum(avg_window)\n            avg /= float(len(avg_window))\n\
-      \            \n            \n            #\n            # Compute the ratio\
-      \ between the average and the smoothed FFT, and\n            #  produce a scaling\
-      \ vector that makes them all roughly at the same level\n            #\n    \
-      \        # We only do thiS ONCE in an entire run near the beginning,\n     \
-      \       #   otherwise, other bad things will happen\n            #\n       \
-      \     # This should be OK, since the *ratios* should remain roughly\n      \
-      \      #  the same, even if the baseline noise level changes, due to\n     \
-      \       #  background continuum level changes, etc.\n            #\n       \
-      \     correction = numpy.divide([avg]*fbsize,smooth_fft)\n        return correction\n\
-      \    #\n    # Not yet time, return no correction\n    #\n    else:\n       \
-      \ return [1.0]*fbsize\n    \ndef get_sky_freq(sky,freq):\n    return sky if\
-      \ sky != 0.0 else freq\n\ndef autoscale(scale,pace):\n    p = get_current_estimate()\n\
-      \    if (p > 1.0e-12):\n        return float(scale/p)\n    else:\n        return\
-      \ 1.0\n\ncurrent_channel = 0\ndef get_current_channel(pacer,nchan):\n    global\
-      \ current_channel\n    \n    r = [0.0]*nchan\n    r[current_channel] = 1.0\n\
-      \    current_channel += 1\n    if (current_channel >= nchan):\n        current_channel\
-      \ = 0\n    return r\n\nchannels = None\nchcnts = None\nspikes = None\nlastchan\
-      \ = -1\ndef analyser(fft,nchan):\n    global automask\n    global channels\n\
-      \    global chcnts\n    global spikes\n    global lastchan\n    \n    nfft =\
-      \ fft[0:int(len(fft)/2)]\n    if channels == None:\n        channels = [numpy.array([0.0]*len(nfft))]*nchan\n\
-      \        chcnts = [0.0]*nchan\n        spikes = [0]*nchan\n    \n    ccn = current_channel\n\
-      \    channels[ccn] = numpy.add(nfft,channels[ccn])\n    chcnts[ccn] += 1.0\n\
-      \    \n    #\n    # Ignore if this is the first data after a channel change\n\
-      \    #\n    if (ccn != lastchan):\n        #print \"New channel %d\" % ccn\n\
-      \        lastchan = ccn\n        return ccn\n    \n    chavg = numpy.divide(channels[ccn],\
-      \ chcnts[ccn])\n    \n    spike = 0\n    winsize = 6\n    if (chcnts[ccn] >\
-      \ 10):\n        for inspected in range(winsize,len(chavg)-winsize):\n      \
-      \      window = sum(chavg[inspected-winsize:inspected-1])\n            window\
-      \ /= float(winsize)\n            if (chavg[inspected] > window*3.5):\n     \
-      \           spike += 1\n \n        if (spike == 0):\n            if (spikes[ccn]\
+      \            #\n            avg_window = smooth_fft[frac:-(frac)]##### +1 on\
+      \ -frac can save us from div/0\n            \n            #\n            # Average\
+      \ that \"window\"\n            #\n            avg = sum(avg_window)\n      \
+      \      avg /= float(len(avg_window))\n            \n            \n         \
+      \   #\n            # Compute the ratio between the average and the smoothed\
+      \ FFT, and\n            #  produce a scaling vector that makes them all roughly\
+      \ at the same level\n            #\n            # We only do thiS ONCE in an\
+      \ entire run near the beginning,\n            #   otherwise, other bad things\
+      \ will happen\n            #\n            # This should be OK, since the *ratios*\
+      \ should remain roughly\n            #  the same, even if the baseline noise\
+      \ level changes, due to\n            #  background continuum level changes,\
+      \ etc.\n            #\n            correction = numpy.divide([avg]*fbsize,smooth_fft)\n\
+      \        return correction\n    #\n    # Not yet time, return no correction\n\
+      \    #\n    else:\n        return [1.0]*fbsize\n    \ndef get_sky_freq(sky,freq):\n\
+      \    return sky if sky != 0.0 else freq\n\ndef autoscale(scale,pace):\n    p\
+      \ = get_current_estimate()\n    if (p > 1.0e-12):\n        return float(scale/p)\n\
+      \    else:\n        return 1.0\n\ncurrent_channel = 0\ndef get_current_channel(pacer,nchan):\n\
+      \    global current_channel\n    \n    r = [0.0]*nchan\n    r[current_channel]\
+      \ = 1.0\n    current_channel += 1\n    if (current_channel >= nchan):\n    \
+      \    current_channel = 0\n    return r\n\nchannels = None\nchcnts = None\nspikes\
+      \ = None\nlastchan = -1\ndef analyser(fft,nchan):\n    global automask\n   \
+      \ global channels\n    global chcnts\n    global spikes\n    global lastchan\n\
+      \    \n    nfft = fft[0:int(len(fft)/2)]\n    if channels == None:\n       \
+      \ channels = [numpy.array([0.0]*len(nfft))]*nchan\n        chcnts = [0.0]*nchan\n\
+      \        spikes = [0]*nchan\n    \n    ccn = current_channel\n    channels[ccn]\
+      \ = numpy.add(nfft,channels[ccn])\n    chcnts[ccn] += 1.0\n    \n    #\n   \
+      \ # Ignore if this is the first data after a channel change\n    #\n    if (ccn\
+      \ != lastchan):\n        #print \"New channel %d\" % ccn\n        lastchan =\
+      \ ccn\n        return ccn\n    \n    chavg = numpy.divide(channels[ccn], chcnts[ccn])\n\
+      \    \n    spike = 0\n    winsize = 6\n    if (chcnts[ccn] > 10):\n        for\
+      \ inspected in range(winsize,len(chavg)-winsize):\n            window = sum(chavg[inspected-winsize:inspected-1])\n\
+      \            window /= float(winsize)\n            if (chavg[inspected] > window*3.5):\n\
+      \                spike += 1\n \n        if (spike == 0):\n            if (spikes[ccn]\
       \ > 0):\n                spikes[ccn] -=1\n\n        elif (spike > 1):\n    \
       \        spikes[ccn] += 1\n\n        if (spikes[ccn] > 10):\n            automask[ccn]\
       \ = 0.0\n\n    return ccn\n\n"
@@ -1627,7 +1627,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [976, 468]
+    coordinate: [992, 452.0]
     rotation: 0
     state: enabled
 - name: fft_vxx_0
@@ -1904,11 +1904,12 @@ blocks:
   parameters:
     alias: ''
     comment: "Sample Rate = Band width, por Niquist \n\nBW bajo para no meter ruido\
-      \ y BW< Max Int. BW (de MURMUR)\n\nRoll of correction=0 , no va bien \n\n16bit\
-      \ output=0 ,no va bien\n\nThresh=2.5, asi el ruido es muy bajo en la FFT\n\n\
-      Detector scaling--->hace mas picuda la gaussina, mejor =1\n\nHP pass enable=1\
-      \ lo pasa por un filtro que lo suaviza\n\nIntegrating=0 , al integrar si estas\
-      \ en un lugar ruidoso, se llena todo de ruido la FFT"
+      \ y BW< Max Int. BW (de MURMUR)\n\nRoll of correction=0 , si desaparece se\xF1\
+      al de los canales laterales, pero ahora esta arreglado\n\n16bit output=0 ,no\
+      \ va bien\n\nThresh=2.5, asi el ruido es muy bajo en la FFT\n\nDetector scaling--->hace\
+      \ mas picuda la gaussina, mejor =1\n\nHP pass enable=1 lo pasa por un filtro\
+      \ que lo suaviza y aumenta la alta frecuencia\n\nIntegrating=0 , al integrar\
+      \ si estas en un lugar ruidoso, se llena todo de ruido la FFT"
     note: ''
   states:
     bus_sink: false
@@ -2509,7 +2510,7 @@ blocks:
     label: Enable Roll-off correction
     short_id: ''
     type: intx
-    value: '0'
+    value: '1'
   states:
     bus_sink: false
     bus_source: false
@@ -2585,7 +2586,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [960, 372]
+    coordinate: [976, 372.0]
     rotation: 0
     state: enabled
 - name: single_pole_iir_filter_xx_3

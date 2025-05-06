@@ -342,7 +342,7 @@ def log_fft(freq,bw,prefix,fft):
     #
     # Schedule our next one
     #
-    next_fft = time.time() + 10.0
+    next_fft = time.time() + 10.0 
  
     #
     # Get current time, break out into "struct tm" style time fields
@@ -718,7 +718,6 @@ def get_correction(fbsize,correct,pacer):
     global fft_cnt
     global correct_state
     global correction
-
     #
     # They haven't asked for correction
     #
@@ -748,7 +747,7 @@ def get_correction(fbsize,correct,pacer):
             #
             # Produce the "window" over which we'll average
             #
-            avg_window = smooth_fft[frac:-(frac+1)]
+            avg_window = smooth_fft[frac:-(frac)]##### +1 on -frac can save us from div/0
             
             #
             # Average that "window"
