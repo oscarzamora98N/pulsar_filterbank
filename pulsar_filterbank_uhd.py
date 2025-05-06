@@ -36,7 +36,7 @@ import threading
 
 class pulsar_filterbank_uhd(gr.top_block):
 
-    def __init__(self, bbgain=10, dec=7.93, dm=2.97, dscale=1, freq=1400e6, hp=1, hpgain=0.6, ifgain=10, integrator=0, p0=0.25306, pinterval=30, pps="internal", prefix="./", profile=0, pw50=8.6e-3, ra=148.29, refclock="internal", resolution=15, rfgain=45, rfilist="", rolloff=1, runtime=60*60, sky=0, source="B0950_08", srate=60.0e6, subdev="A:0", tbins=250, thresh=2.5, trial_ppms="0.0", wide=0):
+    def __init__(self, bbgain=10, dec=54.58, dm=26.76, dscale=1, freq=1400e6, hp=1, hpgain=0.6, ifgain=10, integrator=0, p0=0.71452, pinterval=30, pps="internal", prefix="./", profile=0, pw50=6.6e-3, ra=53.25, refclock="internal", resolution=10, rfgain=45, rfilist="", rolloff=0, runtime=60*5, sky=0, source="B0329+54", srate=40.0e6, subdev="A:0", tbins=250, thresh=2.5, trial_ppms="0.0", wide=0):
         gr.top_block.__init__(self, "Pulsar Filterbank Uhd", catch_exceptions=True)
 
         ##################################################
@@ -269,8 +269,8 @@ class pulsar_filterbank_uhd(gr.top_block):
         self.connect((self.blocks_add_xx_1, 0), (self.single_pole_iir_filter_xx_2, 0))
         self.connect((self.blocks_add_xx_2, 0), (self.blocks_sub_xx_0, 0))
         self.connect((self.blocks_add_xx_2, 0), (self.single_pole_iir_filter_xx_1, 0))
-        self.connect((self.blocks_complex_to_float_0, 1), (self.blocks_float_to_complex_0, 0))
         self.connect((self.blocks_complex_to_float_0, 0), (self.blocks_float_to_complex_0, 1))
+        self.connect((self.blocks_complex_to_float_0, 1), (self.blocks_float_to_complex_0, 0))
         self.connect((self.blocks_complex_to_mag_squared_0, 0), (self.blocks_integrate_xx_0, 0))
         self.connect((self.blocks_complex_to_mag_squared_0, 0), (self.single_pole_iir_filter_xx_0, 0))
         self.connect((self.blocks_complex_to_mag_squared_1, 0), (self.single_pole_iir_filter_xx_3, 0))
@@ -808,10 +808,10 @@ def argument_parser():
         "--bbgain", dest="bbgain", type=eng_float, default=eng_notation.num_to_str(float(10)),
         help="Set Baseband Gain [default=%(default)r]")
     parser.add_argument(
-        "--dec", dest="dec", type=eng_float, default=eng_notation.num_to_str(float(7.93)),
+        "--dec", dest="dec", type=eng_float, default=eng_notation.num_to_str(float(54.58)),
         help="Set Source DEC [default=%(default)r]")
     parser.add_argument(
-        "--dm", dest="dm", type=eng_float, default=eng_notation.num_to_str(float(2.97)),
+        "--dm", dest="dm", type=eng_float, default=eng_notation.num_to_str(float(26.76)),
         help="Set Dispersion Measure [default=%(default)r]")
     parser.add_argument(
         "--dscale", dest="dscale", type=intx, default=1,
@@ -832,7 +832,7 @@ def argument_parser():
         "--integrator", dest="integrator", type=intx, default=0,
         help="Set Enable straight integrator instead of IIR [default=%(default)r]")
     parser.add_argument(
-        "--p0", dest="p0", type=eng_float, default=eng_notation.num_to_str(float(0.25306)),
+        "--p0", dest="p0", type=eng_float, default=eng_notation.num_to_str(float(0.71452)),
         help="Set Pulsar P0 [default=%(default)r]")
     parser.add_argument(
         "--pinterval", dest="pinterval", type=intx, default=30,
@@ -841,28 +841,28 @@ def argument_parser():
         "--profile", dest="profile", type=intx, default=0,
         help="Set Log Rough Profile [default=%(default)r]")
     parser.add_argument(
-        "--pw50", dest="pw50", type=eng_float, default=eng_notation.num_to_str(float(8.6e-3)),
+        "--pw50", dest="pw50", type=eng_float, default=eng_notation.num_to_str(float(6.6e-3)),
         help="Set Pulsar PW50 [default=%(default)r]")
     parser.add_argument(
-        "--ra", dest="ra", type=eng_float, default=eng_notation.num_to_str(float(148.29)),
+        "--ra", dest="ra", type=eng_float, default=eng_notation.num_to_str(float(53.25)),
         help="Set Source RA [default=%(default)r]")
     parser.add_argument(
-        "--resolution", dest="resolution", type=intx, default=15,
+        "--resolution", dest="resolution", type=intx, default=10,
         help="Set FB resolution multiplier [default=%(default)r]")
     parser.add_argument(
         "--rfgain", dest="rfgain", type=eng_float, default=eng_notation.num_to_str(float(45)),
         help="Set RF Gain [default=%(default)r]")
     parser.add_argument(
-        "--rolloff", dest="rolloff", type=intx, default=1,
+        "--rolloff", dest="rolloff", type=intx, default=0,
         help="Set Enable Roll-off correction [default=%(default)r]")
     parser.add_argument(
-        "--runtime", dest="runtime", type=intx, default=60*60,
+        "--runtime", dest="runtime", type=intx, default=60*5,
         help="Set Total runtime (seconds) [default=%(default)r]")
     parser.add_argument(
         "--sky", dest="sky", type=eng_float, default=eng_notation.num_to_str(float(0)),
         help="Set Sky Frequency [default=%(default)r]")
     parser.add_argument(
-        "--srate", dest="srate", type=eng_float, default=eng_notation.num_to_str(float(60.0e6)),
+        "--srate", dest="srate", type=eng_float, default=eng_notation.num_to_str(float(40.0e6)),
         help="Set Hardware Sample Rate [default=%(default)r]")
     parser.add_argument(
         "--tbins", dest="tbins", type=intx, default=250,

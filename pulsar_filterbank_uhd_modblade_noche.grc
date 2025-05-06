@@ -1,0 +1,2970 @@
+options:
+  parameters:
+    author: ''
+    catch_exceptions: 'True'
+    category: '[GRC Hier Blocks]'
+    cmake_opt: ''
+    comment: ''
+    copyright: ''
+    description: ''
+    gen_cmake: 'On'
+    gen_linking: dynamic
+    generate_options: no_gui
+    hier_block_src_path: '.:'
+    id: pulsar_filterbank_uhd
+    max_nouts: '0'
+    output_language: python
+    placement: (0,0)
+    qt_qss_theme: ''
+    realtime_scheduling: ''
+    run: 'True'
+    run_command: '{python} -u {filename}'
+    run_options: run
+    sizing_mode: fixed
+    thread_safe_setters: ''
+    title: ''
+    window_size: 2000,2000
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [8, 8]
+    rotation: 0
+    state: enabled
+
+blocks:
+- name: an_fftsize
+  id: variable
+  parameters:
+    comment: ''
+    value: '2048'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1032, 1212]
+    rotation: 0
+    state: enabled
+- name: analyser_result
+  id: variable
+  parameters:
+    comment: ''
+    value: fb_helper.analyser(analysis_poll_fast,fbsize)
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1808, 1236]
+    rotation: 0
+    state: enabled
+- name: analysis_poll_fast
+  id: variable_function_probe
+  parameters:
+    block_id: analysis_probe
+    comment: ''
+    function_args: ''
+    function_name: level
+    poll_rate: '4'
+    value: '[0.0]*an_fftsize'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1640, 1232]
+    rotation: 0
+    state: enabled
+- name: analysis_poll_slow
+  id: variable_function_probe
+  parameters:
+    block_id: analysis_probe
+    comment: ''
+    function_args: ''
+    function_name: level
+    poll_rate: '0.3333'
+    value: '[0.0]*an_fftsize'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1640, 1320]
+    rotation: 0
+    state: enabled
+- name: cfname
+  id: variable
+  parameters:
+    comment: ''
+    value: '"/dev/null" if wide == 1 else pfname+".filtmp"'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1840, 452]
+    rotation: 0
+    state: enabled
+- name: fbdecim
+  id: variable
+  parameters:
+    comment: ''
+    value: fb_helper.determine_rate(samp_rate,fbsize,pw50)
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1816, 12]
+    rotation: 0
+    state: enabled
+- name: fbrate
+  id: variable
+  parameters:
+    comment: Output sample rate for each channel
+    value: (float(samp_rate)/float(fbsize))/float(fbdecim)
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1704, 12]
+    rotation: 0
+    state: enabled
+- name: fbsize
+  id: variable
+  parameters:
+    comment: ''
+    value: fb_helper.dm_to_bins(dm,fb_helper.get_sky_freq(sky,freq),samp_rate,pw50)*resolution
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1896, 12]
+    rotation: 0
+    state: enabled
+- name: fft_log_status
+  id: variable
+  parameters:
+    comment: 'Arrange to log FFT outputs in dB ascii
+
+      format every 10 seconds'
+    value: fb_helper.log_fft(fb_helper.get_sky_freq(sky,freq),samp_rate,prefix,fft_poll2)
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1752, 916]
+    rotation: 0
+    state: enabled
+- name: fft_poll
+  id: variable_function_probe
+  parameters:
+    block_id: fft_probe
+    comment: ''
+    function_args: ''
+    function_name: level
+    poll_rate: '50'
+    value: '[1.0e-15]*fbsize'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1576, 920]
+    rotation: 0
+    state: enabled
+- name: fft_poll2
+  id: variable_function_probe
+  parameters:
+    block_id: fft_probe
+    comment: ''
+    function_args: ''
+    function_name: level
+    poll_rate: '5'
+    value: '[1.0e-15]*fbsize'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1576, 828.0]
+    rotation: 0
+    state: enabled
+- name: fft_rate
+  id: variable
+  parameters:
+    comment: ''
+    value: samp_rate/fbsize
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [672, 340.0]
+    rotation: 0
+    state: enabled
+- name: hdr2_stat
+  id: variable
+  parameters:
+    comment: ''
+    value: fb_helper.build_header_info(pfname+".fil",source,ra,dec,fb_helper.get_sky_freq(sky,freq),srate,fbrate,fbsize,None,swidth)
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1728, 836.0]
+    rotation: 0
+    state: enabled
+- name: hdstatus
+  id: variable
+  parameters:
+    comment: ''
+    value: fb_helper.write_header(parmname, fb_helper.get_sky_freq(sky,freq)/1.0e6,
+      samp_rate/1.0e6, fbsize, fbrate,swidth)
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1808, 836.0]
+    rotation: 0
+    state: enabled
+- name: hpcorner
+  id: variable
+  parameters:
+    comment: ''
+    value: (1.0/p0)/20.0
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1080, 60]
+    rotation: 0
+    state: enabled
+- name: lpcorner
+  id: variable
+  parameters:
+    comment: ''
+    value: (1.0/pw50)*2.5
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [576, 340.0]
+    rotation: 0
+    state: enabled
+- name: ltp
+  id: variable
+  parameters:
+    comment: ''
+    value: time.gmtime(time.time())
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1672, 660]
+    rotation: 0
+    state: enabled
+- name: magn
+  id: variable
+  parameters:
+    comment: ''
+    value: fb_helper.get_current_estimate()
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1224, 436]
+    rotation: 0
+    state: enabled
+- name: parmname
+  id: variable
+  parameters:
+    comment: ''
+    value: prefix+"psr-"+timestr+".header"
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1824, 756]
+    rotation: 0
+    state: enabled
+- name: pfname
+  id: variable
+  parameters:
+    comment: ''
+    value: prefix+"psr-"+timestr
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1664, 740]
+    rotation: 0
+    state: enabled
+- name: prof_file
+  id: variable
+  parameters:
+    comment: ''
+    value: prefix+"psr-"+timestr+"-profile.json" if profile else '/dev/null'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1560, 572]
+    rotation: 0
+    state: enabled
+- name: profile_dec
+  id: variable
+  parameters:
+    comment: ''
+    value: '2'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1784, 572]
+    rotation: 0
+    state: enabled
+- name: reduced_rate
+  id: variable
+  parameters:
+    comment: ''
+    value: fbrate/profile_dec
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1664, 572]
+    rotation: 0
+    state: enabled
+- name: rfi_mask
+  id: variable
+  parameters:
+    comment: Computed statically from RFI list
+    value: fb_helper.static_mask(fb_helper.get_sky_freq(sky,freq),samp_rate,fbsize,rfilist)
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1488, 12]
+    rotation: 0
+    state: enabled
+- name: rfi_mask2
+  id: variable
+  parameters:
+    comment: 'Computed dynamically
+
+      using estimate of mean power'
+    value: fb_helper.dynamic_mask(fft_poll,rfi_mask,thresh)
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1288, 12]
+    rotation: 0
+    state: enabled
+- name: rx_time_tags
+  id: variable_function_probe
+  parameters:
+    block_id: tag_retrieve
+    comment: ''
+    function_args: ''
+    function_name: current_tags
+    poll_rate: '30'
+    value: '[]'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [312, 916.0]
+    rotation: 0
+    state: enabled
+- name: samp_rate
+  id: variable
+  parameters:
+    comment: ''
+    value: srate
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [8, 164.0]
+    rotation: 0
+    state: enabled
+- name: sfname
+  id: variable
+  parameters:
+    comment: ''
+    value: '"/dev/null" if wide == 0 else pfname+".filtmp"'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1888, 388]
+    rotation: 0
+    state: enabled
+- name: shaper
+  id: variable
+  parameters:
+    comment: 'This provides passband response correction
+
+      We merge in to the RFI excision masker, to
+
+      eliminate an extra multiply-const'
+    value: fb_helper.get_correction(fbsize,rolloff,fft_poll2)
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [384, 188.0]
+    rotation: 0
+    state: enabled
+- name: swidth
+  id: variable
+  parameters:
+    comment: ''
+    value: 1 if wide == 0 else 2
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1888, 916.0]
+    rotation: 0
+    state: enabled
+- name: tag_stash_result
+  id: variable
+  parameters:
+    comment: ''
+    value: fb_helper.process_tag(rx_time_tags)
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [336, 828.0]
+    rotation: 0
+    state: enabled
+- name: timestr
+  id: variable
+  parameters:
+    comment: Filename forming
+    value: '"%04d%02d%02d%02d%02d" % (ltp.tm_year, ltp.tm_mon, ltp.tm_mday,ltp.tm_hour,ltp.tm_min)'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1856, 660]
+    rotation: 0
+    state: enabled
+- name: update_header
+  id: variable
+  parameters:
+    comment: ''
+    value: fb_helper.update_header(rx_time_tags, runtime, swidth)
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1888, 836.0]
+    rotation: 0
+    state: true
+- name: Folder_Block
+  id: epy_block
+  parameters:
+    _source_code: "\"\"\"\nEmbedded Python Blocks:\n\nEach time this file is saved,\
+      \ GRC will instantiate the first class it finds\nto get ports and parameters\
+      \ of your block. The arguments to __init__  will\nbe the parameters. All of\
+      \ them are required to have default values!\n\"\"\"\n\nimport numpy as np\n\
+      from gnuradio import gr\nimport time\nimport json\n\nclass blk(gr.sync_block):\
+      \  # other base classes are basic_block, decim_block, interp_block\n    \"\"\
+      \"A pulsar folder/de-dispersion block\"\"\"\n\n    def __init__(self, fbsize=16,smear=10.0,period=0.714,filename='/dev/null',fbrate=2500,tbins=250,interval=30,tppms=\"\
+      0.0\"):  # only default arguments here\n        \"\"\"arguments to this function\
+      \ show up as parameters in GRC\"\"\"\n        gr.sync_block.__init__(\n    \
+      \        self,\n            name='Pulsar Folder',   # will show up in GRC\n\
+      \            in_sig=[np.float32],\n            out_sig=None\n        )\n   \
+      \     # if an attribute with the same name as a parameter is found,\n      \
+      \  # a callback is registered (properties work, too).\n        \n        self.set_output_multiple(fbsize)\n\
+      \        self.delaymap = [0]*fbsize\n        delayincr = (smear/1000.0) * float(fbrate)\n\
+      \        delayincr /= float(fbsize)\n        delayincr = round(delayincr)\n\
+      \        delayincr = int(delayincr)\n        for i in range(fbsize):\n     \
+      \       self.delaymap[(fbsize-i)-1] = i*delayincr\n        \n        #\n   \
+      \     # Needed in a few places\n        #\n        self.flen = fbsize\n    \
+      \    \n        #\n        # The pulsar period\n        #\n        self.p0 =\
+      \ period\n        \n        #\n        # The derived single-period pulse profile\
+      \ with various shifts\n        #\n        #\n        ppmlist = tppms.split(\"\
+      ,\")\n        self.shifts = []\n        for p in ppmlist:\n            self.shifts.append(float(p)*1.0e-6)\n\
+      \            \n        self.profiles = [[0.0]*tbins]*len(self.shifts)\n    \
+      \    self.pcounts = [[0.0]*tbins]*len(self.shifts)\n        self.nprofiles =\
+      \ len(self.profiles)\n        \n        #\n        #\n        # How much time\
+      \ is in each bin?\n        # The profile should be \"exactly\" as long as a\
+      \ single\n        #   pulse period\n        #\n        self.tbint = []\n   \
+      \     for shift in self.shifts:\n            self.tbint.append((self.p0*(1.0+shift))/tbins)\n\
+      \        \n        #\n        # The profile length\n        #   \n        self.plen\
+      \ = tbins\n        \n        #\n        # Sample period\n        #\n       \
+      \ self.sper = 1.0/fbrate\n        \n        #\n        # Mission Elapsed Time\n\
+      \        # This is moved along at every time samples arrival--incremented\n\
+      \        #   by 'self.sper'\n        #\n        self.MET = 0.0\n        \n \
+      \       #\n        # Open the output file\n        #\n        self.fname = filename\n\
+      \        self.sequence = 0\n        \n        self.max_in = 0.0\n        self.min_in\
+      \ = 100000000\n        \n        #\n        # The logging interval\n       \
+      \ #\n        self.INTERVAL = fbrate*interval\n        self.logcount = self.INTERVAL\n\
+      \        \n        #print \"tbin %-11.7f tbinp %-11.7f tbinn %-11.7f\" % (self.tbin,\
+      \ self.tbinp, self.tbinn)\n        fp = open(self.fname, \"w\")\n        fp.write\
+      \ (\"[\\n\")\n        fp.close()\n        \n    def work(self, input_items,\
+      \ output_items):\n        \"\"\"Do dedispersion/folding\"\"\"\n        q = input_items[0]\n\
+      \        l = len(q)\n        if (l > self.max_in):\n            self.max_in\
+      \ = l\n        elif (l < self.min_in):\n            self.min_in = l\n      \
+      \  for i in range(int(l/self.flen)):\n            #\n            # Do delay/dedispersion\
+      \ logic\n            #\n            if (self.delaymap[0] > 0):\n           \
+      \     outval = 0.0\n                for j in range(self.flen):\n           \
+      \         if (self.delaymap[j] == 0):\n                        outval += q[(i*self.flen)+j]\n\
+      \                #\n                # Decrement delay counters\n           \
+      \     #\n                for j in range(self.flen):\n                    if\
+      \ (self.delaymap[j] > 0):\n                        self.delaymap[j] -= 1\n \
+      \                   else:\n                        break\n            else:\n\
+      \                outval = sum(q[(i*self.flen):(i*self.flen)+self.flen])\n  \
+      \          \n            #\n            # Figure out where this sample goes\
+      \ in the profile buffer, based on MET\n            # We place the next sample\
+      \ based on the MET, re-expressed in terms of\n            #   total time-bins\
+      \ (self.tbint) modulo the profile length\n            #\n            # Update\
+      \ all the profiles\n            #\n            for x in range(self.nprofiles):\n\
+      \                where = self.MET/self.tbint[x]\n                where = int(where)\
+      \ % self.plen\n                self.profiles[x][where] += outval\n         \
+      \       self.pcounts[x][where] += 1\n            \n            #\n         \
+      \   # Increment Mission Elapsed Time\n            #\n            self.MET +=\
+      \ self.sper\n            \n            #\n            # Decrement the log counter\n\
+      \            #\n            self.logcount -= 1\n            \n            #\n\
+      \            # If time to log, the output is the reduced-by-counts\n       \
+      \     #  value of the profile.\n            #\n            if (self.logcount\
+      \ <= 0):\n                fp = open(self.fname, \"a\")\n                outputs\
+      \ = []\n                for x in range(len(self.profiles)):\n              \
+      \      outputs.append(np.divide(self.profiles[x],self.pcounts[x]))\n       \
+      \         d = {}\n                t = time.gmtime()\n                d[\"time\"\
+      ] = \"%04d%02d%02d-%02d:%02d:%02d\" % (t.tm_year,\n                    t.tm_mon,\
+      \ t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec)\n                d[\"sequence\"\
+      ] = self.sequence\n                d[\"max_input_length\"] = self.max_in\n \
+      \               d[\"min_input_length\"] = self.min_in\n                self.sequence\
+      \ += 1\n                profiles = []\n                for x in range(len(self.profiles)):\n\
+      \                    pd = {}\n                    pd[\"profile\"] = list(outputs[x])\n\
+      \                    pd[\"p0\"] = self.p0*(1.0+self.shifts[x])\n           \
+      \         pd[\"shift\"] = self.shifts[x]\n                    profiles.append(pd)\n\
+      \                d[\"profiles\"] = profiles\n                fp.write(json.dumps(d,\
+      \ indent=4, sort_keys=True)+\",\\n\")\n                fp.close()\n        \
+      \        self.logcount = self.INTERVAL\n            \n            \n       \
+      \ return len(q)\n"
+    affinity: ''
+    alias: ''
+    comment: ''
+    fbrate: reduced_rate
+    fbsize: fbsize
+    filename: prof_file
+    interval: pinterval
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    period: p0
+    smear: fb_helper.dm_to_smear(freq,samp_rate,dm)
+    tbins: tbins
+    tppms: trial_ppms
+  states:
+    _io_cache: ('Pulsar Folder', 'blk', [('fbsize', '16'), ('smear', '10.0'), ('period',
+      '0.714'), ('filename', "'/dev/null'"), ('fbrate', '2500'), ('tbins', '250'),
+      ('interval', '30'), ('tppms', "'0.0'")], [('0', 'float', 1)], [], 'A pulsar
+      folder/de-dispersion block', [])
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1720, 396.0]
+    rotation: 0
+    state: enabled
+- name: analog_fastnoise_source_x_0
+  id: analog_fastnoise_source_x
+  parameters:
+    affinity: ''
+    alias: ''
+    amp: '1'
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    noise_type: analog.GR_GAUSSIAN
+    samples: int(2.0e6)
+    seed: '0'
+    type: float
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1192, 648]
+    rotation: 0
+    state: enabled
+- name: analysis_probe
+  id: blocks_probe_signal_vx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    type: float
+    vlen: an_fftsize
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1856, 1172]
+    rotation: 0
+    state: enabled
+- name: bbgain
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: Baseband Gain
+    short_id: ''
+    type: eng_float
+    value: '10'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [352, 1540.0]
+    rotation: 0
+    state: enabled
+- name: blocks_abs_xx_0
+  id: blocks_abs_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    type: float
+    vlen: fbsize
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1392, 556.0]
+    rotation: 0
+    state: enabled
+- name: blocks_abs_xx_1
+  id: blocks_abs_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    type: float
+    vlen: fbsize
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1568, 148.0]
+    rotation: 0
+    state: enabled
+- name: blocks_add_xx_0
+  id: blocks_add_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    num_inputs: '2'
+    type: complex
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [240, 736.0]
+    rotation: 0
+    state: enabled
+- name: blocks_add_xx_1
+  id: blocks_add_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    num_inputs: '2'
+    type: float
+    vlen: fbsize
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [632, 144.0]
+    rotation: 0
+    state: enabled
+- name: blocks_add_xx_2
+  id: blocks_add_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    num_inputs: '2'
+    type: float
+    vlen: fbsize
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1224, 272]
+    rotation: 0
+    state: enabled
+- name: blocks_complex_to_float_0
+  id: blocks_complex_to_float
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [528, 768.0]
+    rotation: 0
+    state: enabled
+- name: blocks_complex_to_mag_squared_0
+  id: blocks_complex_to_mag_squared
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: '"Detect" each channel'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    vlen: fbsize
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [520, 604.0]
+    rotation: 0
+    state: enabled
+- name: blocks_complex_to_mag_squared_1
+  id: blocks_complex_to_mag_squared
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    vlen: an_fftsize
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1448, 1172]
+    rotation: 0
+    state: enabled
+- name: blocks_file_sink_0
+  id: blocks_file_sink
+  parameters:
+    affinity: ''
+    alias: ''
+    append: 'True'
+    comment: ''
+    file: cfname
+    type: byte
+    unbuffered: 'False'
+    vlen: fbsize
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1912, 228.0]
+    rotation: 0
+    state: enabled
+- name: blocks_file_sink_0_0
+  id: blocks_file_sink
+  parameters:
+    affinity: ''
+    alias: ''
+    append: 'True'
+    comment: ''
+    file: sfname
+    type: short
+    unbuffered: 'False'
+    vlen: fbsize
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1912, 124.0]
+    rotation: 0
+    state: enabled
+- name: blocks_float_to_char_0
+  id: blocks_float_to_char
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: 'Whether we produce 8-bit or 16-bit files
+
+      depends on the "wide" input parameter.'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    scale: float(dscale) if dscale >= 0 else fb_helper.autoscale(abs(dscale),fft_poll2)
+    vlen: fbsize
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1720, 252.0]
+    rotation: 0
+    state: enabled
+- name: blocks_float_to_complex_0
+  id: blocks_float_to_complex
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: Flip I/Q, effect spectral inversion
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [752, 776]
+    rotation: 0
+    state: enabled
+- name: blocks_float_to_short_0
+  id: blocks_float_to_short
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    scale: float(dscale) if dscale >= 0 else fb_helper.autoscale(abs(dscale),fft_poll2)
+    vlen: fbsize
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1736, 108.0]
+    rotation: 0
+    state: enabled
+- name: blocks_head_0
+  id: blocks_head
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: So we can control the observation run time
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    num_items: int(runtime*samp_rate)
+    type: complex
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [288, 116.0]
+    rotation: 0
+    state: enabled
+- name: blocks_integrate_xx_0
+  id: blocks_integrate_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    decim: fbdecim
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    type: float
+    vlen: fbsize
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [736, 588.0]
+    rotation: 0
+    state: enabled
+- name: blocks_integrate_xx_1
+  id: blocks_integrate_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    decim: fbsize
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    type: float
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1064, 1108]
+    rotation: 0
+    state: enabled
+- name: blocks_keep_one_in_n_0
+  id: blocks_keep_one_in_n
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: Decimate down to post-detect rate
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    n: fbdecim
+    type: float
+    vlen: fbsize
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [696, 12]
+    rotation: 0
+    state: enabled
+- name: blocks_keep_one_in_n_1
+  id: blocks_keep_one_in_n
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    n: int(samp_rate/15.0)
+    type: complex
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [40, 736.0]
+    rotation: 0
+    state: enabled
+- name: blocks_keep_one_in_n_2
+  id: blocks_keep_one_in_n
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    n: '10'
+    type: float
+    vlen: fbsize
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [720, 980.0]
+    rotation: 0
+    state: enabled
+- name: blocks_keep_one_in_n_3
+  id: blocks_keep_one_in_n
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    n: profile_dec if profile == 1 else 100
+    type: float
+    vlen: fbsize
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1424, 260.0]
+    rotation: 0
+    state: enabled
+- name: blocks_multiply_const_vxx_0
+  id: blocks_multiply_const_vxx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: First stage RFI excision
+    const: numpy.multiply(rfi_mask2,shaper)
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    type: float
+    vlen: fbsize
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [968, 260]
+    rotation: 0
+    state: enabled
+- name: blocks_multiply_const_vxx_1
+  id: blocks_multiply_const_vxx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    const: '[0.0] * fbsize if hp == 0 else [hpgain]*fbsize'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    type: float
+    vlen: fbsize
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1168, 124]
+    rotation: 0
+    state: enabled
+- name: blocks_multiply_const_vxx_2
+  id: blocks_multiply_const_vxx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    const: fb_helper.invert_rfi_mask(rfi_mask2)*numpy.array([magn]*fbsize)
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    type: float
+    vlen: fbsize
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1352, 436]
+    rotation: 0
+    state: enabled
+- name: blocks_multiply_const_vxx_3
+  id: blocks_multiply_const_vxx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    const: '[float(fbdecim)]*fbsize if integrator == 0 else [0.0]*fbsize'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    type: float
+    vlen: fbsize
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [856, 12]
+    rotation: 0
+    state: enabled
+- name: blocks_multiply_const_vxx_4
+  id: blocks_multiply_const_vxx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    const: '[1.0]*fbsize if integrator == 1 else [0.0]*fbsize'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    type: float
+    vlen: fbsize
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [880, 676.0]
+    rotation: 0
+    state: enabled
+- name: blocks_multiply_const_vxx_5
+  id: blocks_multiply_const_vxx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: "This effectively selects which channel we are\ncurrently observing for\
+      \ detected modulation \nartifacts"
+    const: fb_helper.get_current_channel(analysis_poll_slow,fbsize)
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    type: float
+    vlen: fbsize
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [632, 1084.0]
+    rotation: 0
+    state: enabled
+- name: blocks_stream_to_vector_0
+  id: blocks_stream_to_vector
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    num_items: fbsize
+    type: complex
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [288, 296.0]
+    rotation: 0
+    state: enabled
+- name: blocks_stream_to_vector_1
+  id: blocks_stream_to_vector
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    num_items: fbsize
+    type: float
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1192, 540]
+    rotation: 0
+    state: enabled
+- name: blocks_stream_to_vector_2
+  id: blocks_stream_to_vector
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    num_items: an_fftsize
+    type: float
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1224, 1076]
+    rotation: 0
+    state: enabled
+- name: blocks_sub_xx_0
+  id: blocks_sub_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: 'Implement DC block
+
+      Subtract long-term average from current
+
+      samples'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    num_inputs: '2'
+    type: float
+    vlen: fbsize
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1392, 136.0]
+    rotation: 0
+    state: enabled
+- name: blocks_tags_strobe_0
+  id: blocks_tags_strobe
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    key: pmt.intern("local_tick")
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    nsamps: '1'
+    type: complex
+    value: pmt.from_bool(True)
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [24, 796.0]
+    rotation: 0
+    state: enabled
+- name: blocks_vector_to_stream_0
+  id: blocks_vector_to_stream
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    num_items: fbsize
+    type: float
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [888, 1156]
+    rotation: 0
+    state: enabled
+- name: blocks_vector_to_stream_1
+  id: blocks_vector_to_stream
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    num_items: fbsize
+    type: float
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1528, 332]
+    rotation: 0
+    state: enabled
+- name: copyblock
+  id: blocks_copy
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    enabled: 'True'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    showports: 'True'
+    type: complex
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [264, 548]
+    rotation: 0
+    state: enabled
+- name: dec
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: Source DEC
+    short_id: ''
+    type: eng_float
+    value: '54.58'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [256, 1708.0]
+    rotation: 0
+    state: enabled
+- name: dm
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: Dispersion Measure
+    short_id: ''
+    type: eng_float
+    value: '26.76'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [376, 1804.0]
+    rotation: 0
+    state: enabled
+- name: dscale
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: Detector scaling
+    short_id: ''
+    type: intx
+    value: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [800, 1468.0]
+    rotation: 0
+    state: enabled
+- name: fb_helper
+  id: epy_module
+  parameters:
+    alias: ''
+    comment: 'Helper Module
+
+
+      - determine suitable output sample rate
+
+      - determine suitable FB size
+
+      - write header info
+
+      - provide a synchronization helper
+
+      - provide a .FIL file header writer
+
+      - process rx_time tag and update header
+
+      - do RFI estimation and mask generation
+
+      - compute passband correction
+
+      - provide auto-scale option for output'
+    source_code: "# this module will be imported in the into your flowgraph\nimport\
+      \ time\nimport os\nimport shutil\nimport math\nimport struct\nimport pmt\nimport\
+      \ numpy\nimport random\n\nsmpwidth = 0\n\n#\n# Determine reasonable decimation\
+      \ value, given sample-rate,\n#  filterbank-size (already determined) and pw50\
+      \ for the\n#  target pulsar.\n#\n# This is not stunningly efficient, but it\
+      \ only has to run\n#  ONCE on startup.\n#\ndef determine_rate(srate,fbsize,pw50):\n\
+      \    decims = [1024,512,256,128,64,32,16,8,4,2,1]\n    target_rate = (1.0/pw50)\n\
+      \    target_rate *= 10.0\n    for d in decims:\n        if ((srate/fbsize)/d\
+      \ >= target_rate):\n            return d\n    return 1\n\ndef dm_to_smear(freq,bw,dm):\n\
+      \    f_lower = (freq-(bw/2.0))*1.0e-6\n    f_upper = (freq+(bw/2.0))*1.0e-6\n\
+      \    Dt = 4.15e6 * (math.pow(f_lower,-2.0)-math.pow(f_upper,-2.0))\n    Dt *=\
+      \ dm\n    return Dt\n\n#\n# Convert DM to a reasonable number of FFT bins, given\n\
+      #  DM, center-frequency, bandwidth, and pw50\n# \ndef dm_to_bins(dm,freq,bw,pw50):\n\
+      \    \n    #\n    # Convert pw50 to milliseconds (sigh)\n    #\n    p50ms =\
+      \ pw50 * 1000.0\n    \n    Dt = dm_to_smear(freq,bw,dm)\n    \n    #\n    #\
+      \ So that there's only 25% (of W50) residual smearing in each channel of the\
+      \ FB\n    #\n    required_bins = Dt/(p50ms/4.0)\n    \n    #\n    # We do a\
+      \ bit of base2 math to make this a nice FFT size\n    #\n    bins = math.log(required_bins)/math.log(2.0)\n\
+      \    if (abs(bins-int(bins)) > 0.2):\n        bins += 1\n    \n    bins = int(bins)\n\
+      \    \n    #\n    # No sense making the filterbank too small\n    # Set bins\
+      \ so that minimum is 4 channels\n    if bins < 2:\n        bins = 2\n\n    return(int(2**bins))\n\
+      \n#\n# Write an external, text, header file\n#\ndef write_header(fn, freq, bw,\
+      \ fbsize, fbrate, smpsize):\n    global smpwidth\n    \n    if (smpwidth ==\
+      \ 0):\n        smpwidth = smpsize\n        \n    f = open(fn, \"w\")\n    ltp\
+      \ = time.gmtime(time.time())\n    f.write(\"frequency=%.5f\\n\" % freq)\n  \
+      \  f.write(\"RF sample rate=%.5f\\n\" % bw)\n    f.write(\"Filterbank Size=%d\\\
+      n\" % fbsize)\n    f.write(\"Filterbank output rate=%.6f\\n\" % fbrate)\n  \
+      \  f.write(\"Approx start UTC Date=%04d%02d%02d\\n\" % (ltp.tm_year,\n     \
+      \   ltp.tm_mon, ltp.tm_mday))\n    f.write(\"Approx start UTC Time=%02d:%02d:%02d\\\
+      n\" % (ltp.tm_hour,\n        ltp.tm_min, ltp.tm_sec))\n    f.write(\"Output\
+      \ sample size %d bytes\\n\" % smpsize)\n    f.write(\"Expected disk write rate:\
+      \ %6.2f mbyte/sec\\n\" % ((fbsize*fbrate*smpsize)/1.0e6))\n    \n\n\nheader_args\
+      \ = {}\n\n#\n# Convert to the weirdness that is the hybrid floating-point\n\
+      #  time format used by SIGPROC\n#\ndef convert_sigproct(v):\n    itime = int(v*3600.0)\n\
+      \    hours = itime//3600\n    minutes = (itime-(hours*3600))//60\n    seconds\
+      \ = itime - (hours*3600) - (minutes*60)\n    timestr=\"%02d%02d%02d.0\" % (hours,\
+      \ minutes, seconds)\n    return(float(timestr))\n  \n#\n# This will cause a\
+      \ header block to be prepended to the output file\n#\n# Thanks to Guillermo\
+      \ Gancio (ganciogm@gmail.com) for the inspiration\n#   and much of the code\n\
+      #\n\ndef build_header_info(outfile,source_name,source_ra,source_dec,freq,bw,fbrate,fbsize,rx_time,smpsize):\n\
+      \    global smpwidth\n    \n    if (smpwidth == 0):\n        smpwidth = smpsize\n\
+      ##################################################### no tocar luego se usa\
+      \ \n    header_args[\"outfile\"] = outfile\n    header_args[\"source_name\"\
+      ] = source_name\n    header_args[\"source_ra\"] = source_ra\n    header_args[\"\
+      source_dec\"] = source_dec\n    header_args[\"freq\"] = freq\n    header_args[\"\
+      bw\"] = bw\n    header_args[\"fbrate\"] = fbrate\n    header_args[\"fbsize\"\
+      ] = fbsize\n#####################################################\n\n    #\n\
+      \    # Time for one sample, in sec\n    #\n    tsamp=1.0/fbrate\n    \n    #\n\
+      \    # Frequency offset between channels, in MHz\n    #\n    f_off=bw/fbsize\n\
+      \    f_off /= 1.0e6\n    f_off *= -1\n    \n    #\n    # Highest frequency represented\
+      \ in FB, in MHz\n    #\n    high_freq = freq+(bw/2.0)\n    high_freq  /= 1.0e6\n\
+      \    high_freq -= (f_off/2.0)\n    \n    #\n    # Lowest\n    #\n    low_freq\
+      \ = freq-(bw/2.0)\n    low_freq /= 1.0e6\n    low_freq += (f_off/2.0)\n    \n\
+      \    #\n    # Number of subbands\n    #\n    sub_bands=fbsize\n    \n    #\n\
+      \    # Determine MJD from file timestamp\n    #\n    if (rx_time == None):\n\
+      \        fp = open(outfile, \"wb\") #modo binario \n        t_start = (os.path.getmtime(outfile)\
+      \ / 86400) + 40587\n    else:\n        fp = open(outfile, \"wb\")\n        t_start\
+      \ = rx_time\n \n    #\n    # The rest here is mostly due to Guillermo Gancio\
+      \ ganciogm@gmail.com and fixed by Oscar Zamora (for Python 3)\n    #\n    stx=\"\
+      HEADER_START\".encode(\"utf-8\")\n    etx=\"HEADER_END\".encode(\"utf-8\")\n\
+      \    fp.write(struct.pack('i', len(stx))+stx)\n    fp.flush()\n    #--\n   \
+      \ aux=\"rawdatafile\".encode(\"utf-8\")\n    aux=struct.pack('i', len(aux))+aux\n\
+      \    fp.write(aux)\n    fp.write(struct.pack('i', len(outfile.encode(\"utf-8\"\
+      )))+outfile.encode(\"utf-8\"))#outfile is str---> decode to byte in order to\
+      \ get (byte+byte) \n    #--\n    aux=\"src_raj\".encode(\"utf-8\")\n    aux=struct.pack('i',\
+      \ len(aux))+aux\n    source_ra = convert_sigproct(source_ra)\n    fp.write(aux)\n\
+      \    aux=struct.pack('d', source_ra)\n    fp.write(aux)\n    fp.flush()\n\n\
+      \    #--\n    aux=\"src_dej\".encode(\"utf-8\")\n    aux=struct.pack('i', len(aux))+aux\n\
+      \    fp.write(aux)\n    source_dec= convert_sigproct(source_dec)\n    aux=struct.pack('d',\
+      \ source_dec)\n    fp.write(aux)\n    #--\n    aux=\"az_start\".encode(\"utf-8\"\
+      )\n    aux=struct.pack('i', len(aux))+aux\n    fp.write(aux)\n    aux=struct.pack('d',\
+      \ 0.0)\n    fp.write(aux)\n    #--\n    aux=\"za_start\".encode(\"utf-8\")\n\
+      \    aux=struct.pack('i', len(aux))+aux\n    fp.write(aux)\n    aux=struct.pack('d',\
+      \ 0.0)\n    fp.write(aux)\n    #--\n    aux=\"tstart\".encode(\"utf-8\")\n \
+      \   aux=struct.pack('i', len(aux))+aux\n    fp.write(aux)\n    aux=struct.pack('d',\
+      \ float(t_start))\n    fp.write(aux)\n    #--\n    aux=\"foff\".encode(\"utf-8\"\
+      )\n    aux=struct.pack('i', len(aux))+aux\n    fp.write(aux)\n    aux=struct.pack('d',\
+      \ f_off)\n    fp.write(aux)\n    #--\n    aux=\"fch1\".encode(\"utf-8\")\n \
+      \   aux=struct.pack('i', len(aux))+aux\n    fp.write(aux)\n    aux=struct.pack('d',\
+      \ high_freq)\n    fp.write(aux)\n    #--\n    aux=\"nchans\".encode(\"utf-8\"\
+      )\n    aux=struct.pack('i', len(aux))+aux\n    fp.write(aux)\n    aux=struct.pack('i',\
+      \ sub_bands)\n    fp.write(aux)\n    #--\n    aux=\"data_type\".encode(\"utf-8\"\
+      )\n    aux=struct.pack('i', len(aux))+aux\n    fp.write(aux)\n    aux=struct.pack('i',\
+      \ 1)\n    fp.write(aux)\n    #--\n    aux=\"ibeam\".encode(\"utf-8\")\n    aux=struct.pack('i',\
+      \ len(aux))+aux\n    fp.write(aux)\n    aux=struct.pack('i', 1)\n    fp.write(aux)\n\
+      \    #--\n    aux=\"nbits\".encode(\"utf-8\")\n    aux=struct.pack('i', len(aux))+aux\n\
+      \    fp.write(aux)\n    aux=struct.pack('i', smpsize*8)\n    fp.write(aux)\n\
+      \    #--\n    aux=\"tsamp\".encode(\"utf-8\")\n    aux=struct.pack('i', len(aux))+aux\n\
+      \    fp.write(aux)\n    aux=struct.pack('d', tsamp)\n    fp.write(aux)\n   \
+      \ #--\n    aux=\"nbeams\".encode(\"utf-8\")\n    aux=struct.pack('i', len(aux))+aux\n\
+      \    fp.write(aux)\n    aux=struct.pack('i', 1)\n    fp.write(aux)\n    #--\n\
+      \    aux=\"nifs\".encode(\"utf-8\")\n    aux=struct.pack('i', len(aux))+aux\n\
+      \    fp.write(aux)\n    aux=struct.pack('i', 1)\n    fp.write(aux)\n    #--\n\
+      \    aux=\"source_name\".encode(\"utf-8\")\n    fp.write(struct.pack('i', len(aux))+aux)\n\
+      \    fp.write(struct.pack('i', len(source_name.encode(\"utf-8\")))+source_name.encode(\"\
+      utf-8\"))#source_name is str---> decode to byte \n    #--\n    aux=\"machine_id\"\
+      .encode(\"utf-8\")\n    aux=struct.pack('i', len(aux))+aux\n    fp.write(aux)\n\
+      \    aux=struct.pack('i', 20)\n    fp.write(aux)\n    #--\n    aux=\"telescope_id\"\
+      .encode(\"utf-8\")\n    aux=struct.pack('i', len(aux))+aux\n    fp.write(aux)\n\
+      \    aux=struct.pack('i', 20)\n    fp.write(aux)\n    #--\n    fp.write(struct.pack('i',\
+      \ len(etx))+etx)\n    #fp.flush() is not working here \n    #fp.close   is not\
+      \ working here \n    return True\n   \ndef auto_to_freqs(mask, freq, bw): #bw\
+      \ is float \n    start = freq+(bw/2)\n    bins = len(mask)\n    decr = bw/bins\n\
+      \    flist = \"\"\n    for i in range(len(mask)):\n        if (mask[i] == 0.0):\n\
+      \            flist += \"%8.4f,\" % (start/1.0e6)\n        start -= decr\n  \
+      \  return flist\n#\n# We're called fairly frequently, but we only want to log\
+      \ every 10 seconds\n#\nnext_fft = time.time() + 10.0\nsmooth_fft = [0.0]\nfft_cnt\
+      \ = 0\nlast_smooth = time.time()\ndef log_fft(freq,bw,prefix,fft):\n    global\
+      \ next_fft\n    global automask\n    global smooth_fft\n    global fft_cnt\n\
+      \    global last_smooth\n    \n    #\n    # Degenerate FFT length--sometimes\
+      \ on startup\n    #\n    if (len(fft) < 2):\n        return\n    \n    #\n \
+      \   # Provide \"smooth\" FFT for get_correction\n    #  function\n    #\n  \
+      \  if ((time.time() - last_smooth) >= 1.5):\n        if (len(smooth_fft) !=\
+      \ len(fft)):\n            smooth_fft = numpy.array([0.0]*len(fft))\n       \
+      \ fft_cnt += 1\n        smooth_fft = numpy.add(fft,smooth_fft)\n        last_smooth\
+      \ = time.time()\n    #\n    # Not yet time\n    #\n    if (time.time() < next_fft):\n\
+      \        return\n    \n    #\n    # Schedule our next one\n    #\n    next_fft\
+      \ = time.time() + 10.0\n \n    #\n    # Get current time, break out into \"\
+      struct tm\" style time fields\n    #\n    ltp = time.gmtime(time.time())\n \
+      \   \n    #\n    # Constract filename from parts\n    #\n    date = \"%04d%02d%02d%02d\"\
+      \ % (ltp.tm_year, ltp.tm_mon, ltp.tm_mday, ltp.tm_hour)\n    fp = open(prefix+\"\
+      psr-\"+date+\"-fft.csv\", \"a\")\n    \n    #\n    # Write UTC header\n    #\n\
+      \    fp.write(\"%02d:%02d:%02d,\" % (ltp.tm_hour, ltp.tm_min, ltp.tm_sec))\n\
+      \    \n    #\n    # Spectrum is inverted:  Fc+bw/2 to Fc-bw/2\n    #\n    #\
+      \ Required for PRESTO tooling\n    # So we start at the high end and work our\
+      \ way backwards\n    #\n    for i in range(len(fft)-1,-1,-1):\n        if (fft[i]\
+      \ <= 0.0):\n            fp.write(\"??,\")\n        else:\n            fp.write(\"\
+      %.2f,\" % (10.0*math.log10(fft[i]/len(fft))))\n    fp.write(\"\\n\")\n    fp.close()\n\
+      \n    mf = open (prefix+\"psr-\"+date+\"-automask.txt\", \"w\")\n    mf.write\
+      \ (auto_to_freqs(automask,freq,bw))\n    mf.close()\n\n\n\n#\n# This is called\
+      \ from a 10s-of-Hz poll with a list of \"current_tags\"\n#\n# We record the\
+      \ time that the first tag flashes past us.\n#\n#\n# We maintain a static tag\
+      \ dictionary for use later by the header\n#  update code\n#\n\"\"\" only used\
+      \ in debuging \nLOG_FILE = \"/home/rt/pulsar_filterbank/logs/tags.txt\" \n\n\
+      def log_message(message):\n    with open(LOG_FILE, \"a\") as log:\n        log.write(message\
+      \ + \"\\n\")\n\"\"\"\ntag_dict = {} \nfirst_tag = None\n\ndef process_tag(tags):\n\
+      \    global first_tag\n    for tag in tags:\n        key = pmt.to_python(tag.key)\n\
+      \        value = pmt.to_python(tag.value)\n        tag_dict[key] = value\n \
+      \       #log_message(f\"Tag recibido: {key} = {value}\") only for debug \n\n\
+      \        if first_tag is None:\n            first_tag = time.time()\n      \
+      \      #log_message(f\" first_tag registrado: {first_tag}\") only for debug\
+      \ \n\n    \n#\n# Used to find a tag in the tag_dict\n#\ndef get_tag(key):\n\
+      \    if (key in tag_dict):\n        return (tag_dict[key])\n    else:\n    \
+      \    return None\n        \ndidit = False\n#\n# Basically, near the end of the\
+      \ run, concatenates the correct header data\n#  and the live sample data, and\
+      \ produces a final \".fil\" output file.\n#\n\"\"\" only used in debuging\n\
+      LOG_FILEe = \"/home/rt/pulsar_filterbank/logs/update_header.txt\"\n\ndef log_message2(message2):\n\
+      \    with open(LOG_FILEe, \"a\") as log:\n        log.write(message2 + \"\\\
+      n\")\n\"\"\"\ndef update_header(pacer, runtime, smpsize):\n    global didit\n\
+      \    global first_tag\n    global smpwidth\n\n    if smpwidth == 0:\n      \
+      \  smpwidth = smpsize\n\n    #log_message2(f\"Estado de didit antes de procesar:\
+      \ {didit}\")\n\n    if runtime is not None:\n        if first_tag is None:\n\
+      \            #log_message2(\" No hay first_tag. No se puede actualizar la cabecera.\"\
+      )\n            return None\n        else:\n            endtime = first_tag +\
+      \ runtime - 0.5\n    else:\n        endtime = time.time() - 30.0\n\n    if (time.time()\
+      \ >= endtime) and not didit:\n        #log_message2(\"Actualizando la cabecera\
+      \ y concatenando datos...\")\n\n        # Obtener tiempo MJD\n        times\
+      \ = get_tag(\"rx_time\")\n        if times is not None:\n            seconds\
+      \ = float(times[0]) + float(times[1])\n        else:\n            seconds =\
+      \ first_tag if first_tag is not None else time.time()\n            #log_message2(\"\
+      No se encontr\xF3 rx_time, usando tiempo aproximado.\")\n        MJD = seconds\
+      \ / 86400.0 + 40587.0\n\n        build_header_info(\n            header_args[\"\
+      outfile\"],\n            header_args[\"source_name\"],\n            header_args[\"\
+      source_ra\"],\n            header_args[\"source_dec\"],\n            header_args[\"\
+      freq\"],\n            header_args[\"bw\"],\n            header_args[\"fbrate\"\
+      ],\n            header_args[\"fbsize\"],\n            MJD, smpsize\n       \
+      \ )\n        dataname = header_args[\"outfile\"].replace(\".fil\", \".filtmp\"\
+      )\n\n        try:\n            inf = open(dataname, \"rb\")\n            outf\
+      \ = open(header_args[\"outfile\"], \"ab\")\n            #\n            # Concatenate\
+      \ the live sample data onto the .fil file, which\n            #   at this point,\
+      \ only contains the header data\n            #\n            shutil.copyfileobj(inf,\
+      \ outf)\n            #log_message2(f\"copiandooo\")\n            inf.close()\n\
+      \            outf.close()\n            didit = True\n            #\n       \
+      \     # We don't need the \".filtmp\" file anymore, blow it away\n         \
+      \   #\n            os.remove(dataname)###line anull debuging\n            #log_message2(f\"\
+      \ bytes concatenados correctamente en {header_args['outfile']} ({os.path.getsize(header_args['outfile'])}\
+      \ bytes)\")\n            didit = True  \n\n        except:\n            pass\n\
+      \n    return None\n\ndef get_swidth():\n    return smpwidth\n\n#\n# Calculate\
+      \ a \"static\" RFI mask--basically a vector of either 1.0 or 0.0\n#   depending\
+      \ on whether this bin is \"in\" or excised\n#\n# Input is an RFI list, as a\
+      \ string, with comma-separated frequency values\n#   in Hz.\n#\n# This mask\
+      \ will get multiplied by the filterbank outputs--so at a position\n#   with\
+      \ a \"1.0\", that filterbank bin will be included, else it won't.\n#\ndef static_mask(freq,bw,fbsize,rfilist):\n\
+      \    \n    #\n    # If no RFI list, the mask is all 1.0\n    #\n    if (rfilist\
+      \ == \"\" or len(rfilist) == 0 or rfilist == None):\n        return ([1.0]*fbsize)\n\
+      \    \n    #\n    # Step size is the bandwidth over the filterbank size\n  \
+      \  #   (bin width, basically, in Hz)\n    #\n    step = bw/fbsize\n    start\
+      \ = freq-(bw/2.0)\n    end = freq+(bw/2.0)\n    \n    #\n    # Parse the RFI\
+      \ list, do a little sanity checking\n    #  on the values.\n    #\n    rfi =\
+      \ rfilist.split(\",\")\n    mask = [1.0]*fbsize\n    for r in rfi:\n       \
+      \ try:\n            ndx = float(r)-start\n            ndx = ndx/step\n     \
+      \       ndx = int(ndx)\n            if (ndx >= 0 and ndx < len(mask)):\n   \
+      \             mask[ndx] = 0.0\n        except:\n            pass\n    mask.reverse()\n\
+      \    return(mask)\n\n#\n# Compute a \"dynamic mask\".  This is part of a two-stage\
+      \ process for\n#  implementing spectral-based RFI excision.  The first stage\
+      \ \"blanks\"\n#  the excised channels.  The second stage arranges for the \"\
+      blanked\"\n#  channels to have a median estimate +/- a small amount of noise\n\
+      #  in them.  This is better than a sudden \"empty\" channel for post-facto\n\
+      #  folding.\n#\n# Since this second mask is incorporated by a vector addition\
+      \ operation, the\n#  \"good\" channels will have a 0.0 in the mask, and the\
+      \ \"bad\" channels\n#  will have the locally-estimated mean in them.\n#\ncount=0\n\
+      deviation=0.0\nautomask=None\ncurrent_estimate=0.0\ndef dynamic_mask(fft,smask,thresh):\n\
+      \    global count\n    global deviation\n    global automask\n    global current_estimate\n\
+      \   \n    \n    \n    if (automask == None):\n        automask = [1.0]*len(fft)\n\
+      \    \n    #\n    # Our ultimate mask is based on both the user-input static\
+      \ mask\n    #  and the dynamically-determined mask\n    #\n    smask = list(numpy.multiply(smask,automask))\n\
+      \    \n    #\n    # How many blanked/excised channels in the static mask?\n\
+      \    #\n    nzero = smask.count(0.0)\n    \n    #\n    # Determine trim range\n\
+      \    #\n    lf = len(fft)\n    ff = int(lf/10)\n    if (ff == 0):\n        ff\
+      \ = 1\n    \n    #\n    # Calculate mean deviation, but only occasionally\n\
+      \    # Update automask, but only occasionally\n    #\n    if ((count % 15) ==\
+      \ 0):\n        #\n        # Make \"trimmed\" versions of mask and input FFT\n\
+      \        #\n        trim_fft = fft[ff:-ff]\n        trim_mask = list(smask[ff:-ff])\n\
+      \        \n        #\n        # Compute a quick mean\n        # Since the trim_fft\
+      \ bins at the trim_mask excision locations will\n        #    be zero, we can\
+      \ use \"sum\" with confidence\n        #\n        #\n        # The count for\
+      \ the mean will be the length of the input,\n        #   minus the number of\
+      \ zeros in the mask\n        #\n        mcount = len(trim_fft)-trim_mask.count(0.0)\
+      \ #es int\n        dmean = sum(numpy.multiply(trim_fft,trim_mask))\n       \
+      \ dmean /= mcount\n        \n        #\n        # Now compute average deviation\n\
+      \        #\n        adev = 0.0\n        for i in range(len(trim_fft)):\n   \
+      \         if (trim_mask[i]):\n                adev += abs(trim_fft[i]-dmean)\n\
+      \        \n        #\n        # Automask looks for FFT values that exceed the\
+      \ current\n        #  mean estimate by a significant factor--a pulsar will\n\
+      \        #  never do this.  Sporadic narrowband RFI will.\n        #\n     \
+      \   #\n        for i in range(len(fft)):\n            \n            #\n    \
+      \        # Bigger than threshold? It goes on the automask\n            #  AND\
+      \ NEVER LEAVES!  This prevents oscillation\n            #  over timescales that\
+      \ would be similar to pulsars...\n            #\n            if (fft[i] > (dmean*thresh)):\n\
+      \                automask[i] = 0.0\n        \n        #\n        # Two-point\
+      \ smoothing on deviation\n        #\n        if (deviation != 0.0):      \n\
+      \            deviation += adev/mcount\n            deviation /= 2.0\n      \
+      \  else:\n            deviation = adev/mcount\n\n    count +=1\n\n    #\n  \
+      \  # Compute the mean\n    # First: apply the mask\n    #\n    # We add up all\
+      \ the non-masked channels\n    #\n    mean = numpy.multiply(smask,fft)\n   \
+      \ mean = mean[ff:-ff]\n    lnm = len(mean)\n    mean = sum(mean)\n    \n   \
+      \ #\n    # Then: divide by length - count of blanked channels\n    #  (divide\
+      \ by count of non-masked channels, IOW)\n    #\n    mean = mean/float(lnm-nzero)\n\
+      \    mask = [0.0]*len(smask)\n    current_estimate = mean\n    i = 0\n    if\
+      \ False:\n        for s in smask:\n            \n            #\n           \
+      \ # We apply the locally-estimated mean, and then dither by a\n            #\
+      \  small amount--this makes sure that the correlation of the\n            #\
+      \  blanked channels tends to be poor.  I hope.\n            #\n            if\
+      \ (s < 1.0):\n                mask[i] = random.uniform(mean-(deviation/2.0),mean+(deviation/2.0))\n\
+      \            i += 1\n    \n    return(smask)\n    \ndef invert_rfi_mask(mask):\n\
+      \    rmask = []\n    for i in range(0,len(mask)):\n        rmask.append(1.0\
+      \ if mask[i] == 0.0 else 0.0)\n    return rmask\n\nestithen = time.time()\n\
+      frozen_estimate = 0.0   \ndef get_current_estimate():\n    global current_estimate\n\
+      \    global frozen_estimate\n    \n    if (time.time() - estithen < 90):\n \
+      \       frozen_estimate = current_estimate\n        return current_estimate\n\
+      \    else:\n        return frozen_estimate\n\n#\n# Compute passband flatness\
+      \ correction\n#\n# Use the middle 8 bins as an average to normalize to\n#\n\
+      last_correct = time.time()\ncorrect_state = 0\ncorrection = [0.0]\ndef get_correction(fbsize,correct,pacer):\n\
+      \    global last_correct\n    global smooth_fft\n    global fft_cnt\n    global\
+      \ correct_state\n    global correction\n\n    #\n    # They haven't asked for\
+      \ correction\n    #\n    if (correct == 0):\n        return [1.0]*fbsize\n \
+      \   \n    #\n    # If time to return a correction estimate\n    #\n    if ((time.time()\
+      \ - last_correct) > 90):\n        # Compute correction if we haven't already\
+      \ done so\n        if (correct_state == 0):\n            correct_state = 1\n\
+      \            \n            #\n            # Compute the fraction of the buffer\
+      \ we're ignoring\n            #  for calculation of the average level\n    \
+      \        #\n            frac = int(fbsize/6)\n            \n            #\n\
+      \            # Reduce smooth by fft_cnt\n            #\n            smooth_fft\
+      \ = numpy.divide(smooth_fft,fft_cnt)\n            fft_cnt = 1\n            \n\
+      \            #\n            # Produce the \"window\" over which we'll average\n\
+      \            #\n            avg_window = smooth_fft[frac:-(frac+1)]\n      \
+      \      \n            #\n            # Average that \"window\"\n            #\n\
+      \            avg = sum(avg_window)\n            avg /= float(len(avg_window))\n\
+      \            \n            \n            #\n            # Compute the ratio\
+      \ between the average and the smoothed FFT, and\n            #  produce a scaling\
+      \ vector that makes them all roughly at the same level\n            #\n    \
+      \        # We only do thiS ONCE in an entire run near the beginning,\n     \
+      \       #   otherwise, other bad things will happen\n            #\n       \
+      \     # This should be OK, since the *ratios* should remain roughly\n      \
+      \      #  the same, even if the baseline noise level changes, due to\n     \
+      \       #  background continuum level changes, etc.\n            #\n       \
+      \     correction = numpy.divide([avg]*fbsize,smooth_fft)\n        return correction\n\
+      \    #\n    # Not yet time, return no correction\n    #\n    else:\n       \
+      \ return [1.0]*fbsize\n    \ndef get_sky_freq(sky,freq):\n    return sky if\
+      \ sky != 0.0 else freq\n\ndef autoscale(scale,pace):\n    p = get_current_estimate()\n\
+      \    if (p > 1.0e-12):\n        return float(scale/p)\n    else:\n        return\
+      \ 1.0\n\ncurrent_channel = 0\ndef get_current_channel(pacer,nchan):\n    global\
+      \ current_channel\n    \n    r = [0.0]*nchan\n    r[current_channel] = 1.0\n\
+      \    current_channel += 1\n    if (current_channel >= nchan):\n        current_channel\
+      \ = 0\n    return r\n\nchannels = None\nchcnts = None\nspikes = None\nlastchan\
+      \ = -1\ndef analyser(fft,nchan):\n    global automask\n    global channels\n\
+      \    global chcnts\n    global spikes\n    global lastchan\n    \n    nfft =\
+      \ fft[0:int(len(fft)/2)]\n    if channels == None:\n        channels = [numpy.array([0.0]*len(nfft))]*nchan\n\
+      \        chcnts = [0.0]*nchan\n        spikes = [0]*nchan\n    \n    ccn = current_channel\n\
+      \    channels[ccn] = numpy.add(nfft,channels[ccn])\n    chcnts[ccn] += 1.0\n\
+      \    \n    #\n    # Ignore if this is the first data after a channel change\n\
+      \    #\n    if (ccn != lastchan):\n        #print \"New channel %d\" % ccn\n\
+      \        lastchan = ccn\n        return ccn\n    \n    chavg = numpy.divide(channels[ccn],\
+      \ chcnts[ccn])\n    \n    spike = 0\n    winsize = 6\n    if (chcnts[ccn] >\
+      \ 10):\n        for inspected in range(winsize,len(chavg)-winsize):\n      \
+      \      window = sum(chavg[inspected-winsize:inspected-1])\n            window\
+      \ /= float(winsize)\n            if (chavg[inspected] > window*3.5):\n     \
+      \           spike += 1\n \n        if (spike == 0):\n            if (spikes[ccn]\
+      \ > 0):\n                spikes[ccn] -=1\n\n        elif (spike > 1):\n    \
+      \        spikes[ccn] += 1\n\n        if (spikes[ccn] > 10):\n            automask[ccn]\
+      \ = 0.0\n\n    return ccn\n\n"
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1168, 788.0]
+    rotation: 0
+    state: enabled
+- name: fft_probe
+  id: blocks_probe_signal_vx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: 'This operates at fbrate
+
+      Used for FFT logging
+
+      And estimation of the mean'
+    type: float
+    vlen: fbsize
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [976, 468]
+    rotation: 0
+    state: enabled
+- name: fft_vxx_0
+  id: fft_vxx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    fft_size: an_fftsize
+    forward: 'True'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    nthreads: '1'
+    shift: 'True'
+    type: float
+    window: window.blackmanharris(an_fftsize)
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1392, 1056]
+    rotation: 0
+    state: enabled
+- name: fft_vxx_0_0
+  id: fft_vxx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    fft_size: fbsize
+    forward: 'True'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    nthreads: '1'
+    shift: 'True'
+    type: complex
+    window: window.blackmanharris(fbsize)
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [312, 380.0]
+    rotation: 0
+    state: enabled
+- name: freq
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: Tuner Frequency
+    short_id: ''
+    type: eng_float
+    value: 1400e6
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [328, 1444.0]
+    rotation: 0
+    state: enabled
+- name: hp
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: HP pass enable
+    short_id: ''
+    type: intx
+    value: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [776, 1660.0]
+    rotation: 0
+    state: enabled
+- name: hpgain
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: High Pass pseudo-gain
+    short_id: ''
+    type: eng_float
+    value: '0.6'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [776, 1756.0]
+    rotation: 0
+    state: enabled
+- name: ifgain
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: IF Gain
+    short_id: ''
+    type: eng_float
+    value: '10'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [256, 1540.0]
+    rotation: 0
+    state: enabled
+- name: import_0
+  id: import
+  parameters:
+    alias: ''
+    comment: ''
+    imports: import time
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [120, 164.0]
+    rotation: 0
+    state: enabled
+- name: import_0_0
+  id: import
+  parameters:
+    alias: ''
+    comment: ''
+    imports: import platform
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [0, 116]
+    rotation: 0
+    state: enabled
+- name: import_0_1
+  id: import
+  parameters:
+    alias: ''
+    comment: ''
+    imports: import math
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [112, 228.0]
+    rotation: 0
+    state: enabled
+- name: import_1
+  id: import
+  parameters:
+    alias: ''
+    comment: ''
+    imports: import atexit
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [8, 228]
+    rotation: 0
+    state: enabled
+- name: import_1_0
+  id: import
+  parameters:
+    alias: ''
+    comment: ''
+    imports: import numpy
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [120, 116]
+    rotation: 0
+    state: enabled
+- name: integrator
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: Enable straight integrator instead of IIR
+    short_id: ''
+    type: intx
+    value: '0'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [776, 1564.0]
+    rotation: 0
+    state: enabled
+- name: note_0
+  id: note
+  parameters:
+    alias: ''
+    comment: 'A sub-graph to do analysis of the
+
+      *detected* spectrum.
+
+
+      This allows us to look for RFI components in a
+
+      channel that may be only a wee bit above the
+
+      average noise floor, and thus may fail to
+
+      trigger the RF spectral excision.
+
+
+      One channel is analysed at a time, in a
+
+      round-robin schedule.
+
+
+      This eliminates having to have <fbsize>
+
+      independent FFTs running in parallel.'
+    note: ''
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1160, 1156]
+    rotation: 0
+    state: enabled
+- name: note_1
+  id: note
+  parameters:
+    alias: ''
+    comment: 'The trick here is to decimate the input so that
+
+      the input to the tag_debug is slowed down to
+
+      10-15SPS, via the keep-one-in-N.
+
+
+      This is because tag_debug resets its
+
+      local cache of tags every time its work
+
+      function is called, which at high sample
+
+      rates means 0 probability of catching it
+
+      in a "full" state.'
+    note: ''
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [40, 876.0]
+    rotation: 0
+    state: enabled
+- name: note_1_0
+  id: note
+  parameters:
+    alias: ''
+    comment: "Sin ampli:\n-Apuntado a la Univ Privada \nGain_buena=45\nT=3600\n-Apuntado\
+      \ al polideportivo UPNA\nGain_buena=?\nT=3600\n\nCon ampli:\nApuntado a la privada\
+      \ \nGain_max=25 si no explota el codigo y da error div/0"
+    note: ''
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [160, 1220.0]
+    rotation: 0
+    state: enabled
+- name: note_1_0_0
+  id: note
+  parameters:
+    alias: ''
+    comment: "Sample Rate = Band width, por Niquist \n\nBW bajo para no meter ruido\
+      \ y BW< Max Int. BW (de MURMUR)\n\nRoll of correction=0 , no va bien \n\n16bit\
+      \ output=0 ,no va bien\n\nThresh=2.5, asi el ruido es muy bajo en la FFT\n\n\
+      Detector scaling--->hace mas picuda la gaussina, mejor =1\n\nHP pass enable=1\
+      \ lo pasa por un filtro que lo suaviza\n\nIntegrating=0 , al integrar si estas\
+      \ en un lugar ruidoso, se llena todo de ruido la FFT"
+    note: ''
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [480, 1196.0]
+    rotation: 0
+    state: enabled
+- name: note_1_0_0_0
+  id: note
+  parameters:
+    alias: ''
+    comment: Cosas que puedes llegar a necesitar
+    note: ''
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1144, 1476.0]
+    rotation: 0
+    state: enabled
+- name: note_1_0_0_0_0
+  id: note
+  parameters:
+    alias: ''
+    comment: Cosas que es mejor que no toques si no lo necesitas
+    note: ''
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1144, 1628.0]
+    rotation: 0
+    state: enabled
+- name: note_1_0_0_1
+  id: note
+  parameters:
+    alias: ''
+    comment: "CAMBIAR SI SE CAMBIA EL ASTRO DE OBSERVACI\xD3N"
+    note: ''
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [200, 1644.0]
+    rotation: 0
+    state: enabled
+- name: osmo_radio
+  id: osmosdr_source
+  parameters:
+    affinity: ''
+    alias: ''
+    ant0: ''
+    ant1: ''
+    ant10: ''
+    ant11: ''
+    ant12: ''
+    ant13: ''
+    ant14: ''
+    ant15: ''
+    ant16: ''
+    ant17: ''
+    ant18: ''
+    ant19: ''
+    ant2: ''
+    ant20: ''
+    ant21: ''
+    ant22: ''
+    ant23: ''
+    ant24: ''
+    ant25: ''
+    ant26: ''
+    ant27: ''
+    ant28: ''
+    ant29: ''
+    ant3: ''
+    ant30: ''
+    ant31: ''
+    ant4: ''
+    ant5: ''
+    ant6: ''
+    ant7: ''
+    ant8: ''
+    ant9: ''
+    args: '"bladerf=0,nchan=1"'
+    bb_gain0: bbgain
+    bb_gain1: '20'
+    bb_gain10: '20'
+    bb_gain11: '20'
+    bb_gain12: '20'
+    bb_gain13: '20'
+    bb_gain14: '20'
+    bb_gain15: '20'
+    bb_gain16: '20'
+    bb_gain17: '20'
+    bb_gain18: '20'
+    bb_gain19: '20'
+    bb_gain2: '20'
+    bb_gain20: '20'
+    bb_gain21: '20'
+    bb_gain22: '20'
+    bb_gain23: '20'
+    bb_gain24: '20'
+    bb_gain25: '20'
+    bb_gain26: '20'
+    bb_gain27: '20'
+    bb_gain28: '20'
+    bb_gain29: '20'
+    bb_gain3: '20'
+    bb_gain30: '20'
+    bb_gain31: '20'
+    bb_gain4: '20'
+    bb_gain5: '20'
+    bb_gain6: '20'
+    bb_gain7: '20'
+    bb_gain8: '20'
+    bb_gain9: '20'
+    bw0: samp_rate
+    bw1: '0'
+    bw10: '0'
+    bw11: '0'
+    bw12: '0'
+    bw13: '0'
+    bw14: '0'
+    bw15: '0'
+    bw16: '0'
+    bw17: '0'
+    bw18: '0'
+    bw19: '0'
+    bw2: '0'
+    bw20: '0'
+    bw21: '0'
+    bw22: '0'
+    bw23: '0'
+    bw24: '0'
+    bw25: '0'
+    bw26: '0'
+    bw27: '0'
+    bw28: '0'
+    bw29: '0'
+    bw3: '0'
+    bw30: '0'
+    bw31: '0'
+    bw4: '0'
+    bw5: '0'
+    bw6: '0'
+    bw7: '0'
+    bw8: '0'
+    bw9: '0'
+    clock_source0: ''
+    clock_source1: ''
+    clock_source2: ''
+    clock_source3: ''
+    clock_source4: ''
+    clock_source5: ''
+    clock_source6: ''
+    clock_source7: ''
+    comment: ''
+    corr0: '0'
+    corr1: '0'
+    corr10: '0'
+    corr11: '0'
+    corr12: '0'
+    corr13: '0'
+    corr14: '0'
+    corr15: '0'
+    corr16: '0'
+    corr17: '0'
+    corr18: '0'
+    corr19: '0'
+    corr2: '0'
+    corr20: '0'
+    corr21: '0'
+    corr22: '0'
+    corr23: '0'
+    corr24: '0'
+    corr25: '0'
+    corr26: '0'
+    corr27: '0'
+    corr28: '0'
+    corr29: '0'
+    corr3: '0'
+    corr30: '0'
+    corr31: '0'
+    corr4: '0'
+    corr5: '0'
+    corr6: '0'
+    corr7: '0'
+    corr8: '0'
+    corr9: '0'
+    dc_offset_mode0: '0'
+    dc_offset_mode1: '0'
+    dc_offset_mode10: '0'
+    dc_offset_mode11: '0'
+    dc_offset_mode12: '0'
+    dc_offset_mode13: '0'
+    dc_offset_mode14: '0'
+    dc_offset_mode15: '0'
+    dc_offset_mode16: '0'
+    dc_offset_mode17: '0'
+    dc_offset_mode18: '0'
+    dc_offset_mode19: '0'
+    dc_offset_mode2: '0'
+    dc_offset_mode20: '0'
+    dc_offset_mode21: '0'
+    dc_offset_mode22: '0'
+    dc_offset_mode23: '0'
+    dc_offset_mode24: '0'
+    dc_offset_mode25: '0'
+    dc_offset_mode26: '0'
+    dc_offset_mode27: '0'
+    dc_offset_mode28: '0'
+    dc_offset_mode29: '0'
+    dc_offset_mode3: '0'
+    dc_offset_mode30: '0'
+    dc_offset_mode31: '0'
+    dc_offset_mode4: '0'
+    dc_offset_mode5: '0'
+    dc_offset_mode6: '0'
+    dc_offset_mode7: '0'
+    dc_offset_mode8: '0'
+    dc_offset_mode9: '0'
+    freq0: freq
+    freq1: 100e6
+    freq10: 100e6
+    freq11: 100e6
+    freq12: 100e6
+    freq13: 100e6
+    freq14: 100e6
+    freq15: 100e6
+    freq16: 100e6
+    freq17: 100e6
+    freq18: 100e6
+    freq19: 100e6
+    freq2: 100e6
+    freq20: 100e6
+    freq21: 100e6
+    freq22: 100e6
+    freq23: 100e6
+    freq24: 100e6
+    freq25: 100e6
+    freq26: 100e6
+    freq27: 100e6
+    freq28: 100e6
+    freq29: 100e6
+    freq3: 100e6
+    freq30: 100e6
+    freq31: 100e6
+    freq4: 100e6
+    freq5: 100e6
+    freq6: 100e6
+    freq7: 100e6
+    freq8: 100e6
+    freq9: 100e6
+    gain0: rfgain
+    gain1: '10'
+    gain10: '10'
+    gain11: '10'
+    gain12: '10'
+    gain13: '10'
+    gain14: '10'
+    gain15: '10'
+    gain16: '10'
+    gain17: '10'
+    gain18: '10'
+    gain19: '10'
+    gain2: '10'
+    gain20: '10'
+    gain21: '10'
+    gain22: '10'
+    gain23: '10'
+    gain24: '10'
+    gain25: '10'
+    gain26: '10'
+    gain27: '10'
+    gain28: '10'
+    gain29: '10'
+    gain3: '10'
+    gain30: '10'
+    gain31: '10'
+    gain4: '10'
+    gain5: '10'
+    gain6: '10'
+    gain7: '10'
+    gain8: '10'
+    gain9: '10'
+    gain_mode0: 'False'
+    gain_mode1: 'False'
+    gain_mode10: 'False'
+    gain_mode11: 'False'
+    gain_mode12: 'False'
+    gain_mode13: 'False'
+    gain_mode14: 'False'
+    gain_mode15: 'False'
+    gain_mode16: 'False'
+    gain_mode17: 'False'
+    gain_mode18: 'False'
+    gain_mode19: 'False'
+    gain_mode2: 'False'
+    gain_mode20: 'False'
+    gain_mode21: 'False'
+    gain_mode22: 'False'
+    gain_mode23: 'False'
+    gain_mode24: 'False'
+    gain_mode25: 'False'
+    gain_mode26: 'False'
+    gain_mode27: 'False'
+    gain_mode28: 'False'
+    gain_mode29: 'False'
+    gain_mode3: 'False'
+    gain_mode30: 'False'
+    gain_mode31: 'False'
+    gain_mode4: 'False'
+    gain_mode5: 'False'
+    gain_mode6: 'False'
+    gain_mode7: 'False'
+    gain_mode8: 'False'
+    gain_mode9: 'False'
+    if_gain0: ifgain
+    if_gain1: '20'
+    if_gain10: '20'
+    if_gain11: '20'
+    if_gain12: '20'
+    if_gain13: '20'
+    if_gain14: '20'
+    if_gain15: '20'
+    if_gain16: '20'
+    if_gain17: '20'
+    if_gain18: '20'
+    if_gain19: '20'
+    if_gain2: '20'
+    if_gain20: '20'
+    if_gain21: '20'
+    if_gain22: '20'
+    if_gain23: '20'
+    if_gain24: '20'
+    if_gain25: '20'
+    if_gain26: '20'
+    if_gain27: '20'
+    if_gain28: '20'
+    if_gain29: '20'
+    if_gain3: '20'
+    if_gain30: '20'
+    if_gain31: '20'
+    if_gain4: '20'
+    if_gain5: '20'
+    if_gain6: '20'
+    if_gain7: '20'
+    if_gain8: '20'
+    if_gain9: '20'
+    iq_balance_mode0: '0'
+    iq_balance_mode1: '0'
+    iq_balance_mode10: '0'
+    iq_balance_mode11: '0'
+    iq_balance_mode12: '0'
+    iq_balance_mode13: '0'
+    iq_balance_mode14: '0'
+    iq_balance_mode15: '0'
+    iq_balance_mode16: '0'
+    iq_balance_mode17: '0'
+    iq_balance_mode18: '0'
+    iq_balance_mode19: '0'
+    iq_balance_mode2: '0'
+    iq_balance_mode20: '0'
+    iq_balance_mode21: '0'
+    iq_balance_mode22: '0'
+    iq_balance_mode23: '0'
+    iq_balance_mode24: '0'
+    iq_balance_mode25: '0'
+    iq_balance_mode26: '0'
+    iq_balance_mode27: '0'
+    iq_balance_mode28: '0'
+    iq_balance_mode29: '0'
+    iq_balance_mode3: '0'
+    iq_balance_mode30: '0'
+    iq_balance_mode31: '0'
+    iq_balance_mode4: '0'
+    iq_balance_mode5: '0'
+    iq_balance_mode6: '0'
+    iq_balance_mode7: '0'
+    iq_balance_mode8: '0'
+    iq_balance_mode9: '0'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    nchan: '1'
+    num_mboards: '1'
+    sample_rate: samp_rate
+    sync: sync
+    time_source0: pps
+    time_source1: ''
+    time_source2: ''
+    time_source3: ''
+    time_source4: ''
+    time_source5: ''
+    time_source6: ''
+    time_source7: ''
+    type: fc32
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [0, 300.0]
+    rotation: 0
+    state: enabled
+- name: p0
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: Pulsar P0
+    short_id: ''
+    type: eng_float
+    value: '0.71452'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [144, 1804.0]
+    rotation: 0
+    state: enabled
+- name: pinterval
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: Interval for logging profile
+    short_id: ''
+    type: intx
+    value: '30'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1144, 1700.0]
+    rotation: 0
+    state: enabled
+- name: pps
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: PPS source
+    short_id: ''
+    type: ''
+    value: '"internal"'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1304, 1796.0]
+    rotation: 0
+    state: enabled
+- name: prefix
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: File prefix
+    short_id: ''
+    type: ''
+    value: '"./"'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1408, 1796.0]
+    rotation: 0
+    state: enabled
+- name: profile
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: Log Rough Profile
+    short_id: ''
+    type: intx
+    value: '0'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1288, 1700.0]
+    rotation: 0
+    state: enabled
+- name: pw50
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: Pulsar PW50
+    short_id: ''
+    type: eng_float
+    value: '6.6e-3'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [256, 1804.0]
+    rotation: 0
+    state: enabled
+- name: ra
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: Source RA
+    short_id: ''
+    type: eng_float
+    value: '53.25'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [144, 1708.0]
+    rotation: 0
+    state: enabled
+- name: refclock
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: Reference Clock Source
+    short_id: ''
+    type: ''
+    value: '"internal"'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1136, 1796.0]
+    rotation: 0
+    state: enabled
+- name: resolution
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: FB resolution multiplier
+    short_id: ''
+    type: intx
+    value: '10'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [608, 1444.0]
+    rotation: 0
+    state: enabled
+- name: rfgain
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: RF Gain
+    short_id: ''
+    type: eng_float
+    value: '45'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [160, 1540.0]
+    rotation: 0
+    state: enabled
+- name: rfilist
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: RFI frequency list
+    short_id: ''
+    type: ''
+    value: '""'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1136, 1540.0]
+    rotation: 0
+    state: enabled
+- name: rolloff
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: Enable Roll-off correction
+    short_id: ''
+    type: intx
+    value: '0'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [608, 1740.0]
+    rotation: 0
+    state: enabled
+- name: runtime
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: Total runtime (seconds)
+    short_id: ''
+    type: intx
+    value: 60*5
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [456, 1444.0]
+    rotation: 0
+    state: enabled
+- name: single_pole_iir_filter_xx_0
+  id: single_pole_iir_filter_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    alpha: 1.0-math.pow(math.e,-2.0*(lpcorner/(fft_rate)))
+    comment: A bit of low-pass filtering
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    type: float
+    vlen: fbsize
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [648, 428.0]
+    rotation: 0
+    state: enabled
+- name: single_pole_iir_filter_xx_1
+  id: single_pole_iir_filter_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    alpha: 1.0-math.pow(math.e,-2.0*(hpcorner/(fbrate)))
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    type: float
+    vlen: fbsize
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [968, 124.0]
+    rotation: 0
+    state: enabled
+- name: single_pole_iir_filter_xx_2
+  id: single_pole_iir_filter_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    alpha: 1.0-math.pow(math.e,-2.0*(20.0/fbrate))
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    type: float
+    vlen: fbsize
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [960, 372]
+    rotation: 0
+    state: enabled
+- name: single_pole_iir_filter_xx_3
+  id: single_pole_iir_filter_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    alpha: '0.1'
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    type: float
+    vlen: an_fftsize
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1640, 1164]
+    rotation: 0
+    state: enabled
+- name: single_pole_iir_filter_xx_4
+  id: single_pole_iir_filter_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    alpha: 1.0/5.0
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    type: float
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1136, 1012]
+    rotation: 0
+    state: enabled
+- name: sky
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: Sky Frequency
+    short_id: ''
+    type: eng_float
+    value: '0'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1584, 1700.0]
+    rotation: 0
+    state: enabled
+- name: source
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: Source Name
+    short_id: ''
+    type: ''
+    value: '"B0329+54"'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [376, 1716.0]
+    rotation: 0
+    state: enabled
+- name: srate
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: Hardware Sample Rate
+    short_id: ''
+    type: eng_float
+    value: 40.0e6
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [160, 1444.0]
+    rotation: 0
+    state: enabled
+- name: subdev
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: Subdev spec, UHD-version only
+    short_id: ''
+    type: ''
+    value: '"A:0"'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1504, 1796.0]
+    rotation: 0
+    state: enabled
+- name: tag_retrieve
+  id: blocks_tag_debug
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    display: 'False'
+    filter: ''
+    name: ''
+    num_inputs: '1'
+    type: complex
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [336, 732.0]
+    rotation: 0
+    state: enabled
+- name: tbins
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: Number of time bins for profile
+    short_id: ''
+    type: intx
+    value: '250'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1424, 1700.0]
+    rotation: 0
+    state: enabled
+- name: thresh
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: RFI detection threshold--linear factor
+    short_id: ''
+    type: eng_float
+    value: '2.5'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [608, 1564.0]
+    rotation: 0
+    state: enabled
+- name: trial_ppms
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: List of trial ppms
+    short_id: ''
+    type: ''
+    value: '"0.0"'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1272, 1540.0]
+    rotation: 0
+    state: enabled
+- name: virtual_sink_0
+  id: virtual_sink
+  parameters:
+    alias: ''
+    comment: ''
+    stream_id: iq
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [952, 788.0]
+    rotation: 0
+    state: enabled
+- name: virtual_sink_1
+  id: virtual_sink
+  parameters:
+    alias: ''
+    comment: ''
+    stream_id: d_mags
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [808, 156.0]
+    rotation: 0
+    state: enabled
+- name: virtual_sink_2
+  id: virtual_sink
+  parameters:
+    alias: ''
+    comment: ''
+    stream_id: f_mags
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [824, 500.0]
+    rotation: 0
+    state: enabled
+- name: virtual_sink_3
+  id: virtual_sink
+  parameters:
+    alias: ''
+    comment: ''
+    stream_id: pre_d_mags2
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1040, 604.0]
+    rotation: 0
+    state: enabled
+- name: virtual_source_0
+  id: virtual_source
+  parameters:
+    alias: ''
+    comment: ''
+    stream_id: iq
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [256, 20.0]
+    rotation: 0
+    state: enabled
+- name: virtual_source_1
+  id: virtual_source
+  parameters:
+    alias: ''
+    comment: ''
+    stream_id: d_mags
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [800, 292]
+    rotation: 0
+    state: enabled
+- name: virtual_source_1_0
+  id: virtual_source
+  parameters:
+    alias: ''
+    comment: ''
+    stream_id: d_mags
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [784, 380]
+    rotation: 0
+    state: enabled
+- name: virtual_source_2
+  id: virtual_source
+  parameters:
+    alias: ''
+    comment: ''
+    stream_id: f_mags
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [536, 20.0]
+    rotation: 0
+    state: enabled
+- name: virtual_source_3
+  id: virtual_source
+  parameters:
+    alias: ''
+    comment: ''
+    stream_id: pre_d_mags2
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [640, 244.0]
+    rotation: 0
+    state: enabled
+- name: virtual_source_4
+  id: virtual_source
+  parameters:
+    alias: ''
+    comment: ''
+    stream_id: f_mags
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [584, 924.0]
+    rotation: 0
+    state: enabled
+- name: wide
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: Enable 16-bit output
+    short_id: ''
+    type: intx
+    value: '0'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [608, 1652.0]
+    rotation: 0
+    state: enabled
+
+connections:
+- [analog_fastnoise_source_x_0, '0', blocks_stream_to_vector_1, '0']
+- [blocks_abs_xx_0, '0', blocks_multiply_const_vxx_2, '0']
+- [blocks_abs_xx_1, '0', blocks_float_to_char_0, '0']
+- [blocks_abs_xx_1, '0', blocks_float_to_short_0, '0']
+- [blocks_abs_xx_1, '0', blocks_keep_one_in_n_3, '0']
+- [blocks_add_xx_0, '0', tag_retrieve, '0']
+- [blocks_add_xx_1, '0', virtual_sink_1, '0']
+- [blocks_add_xx_2, '0', blocks_sub_xx_0, '0']
+- [blocks_add_xx_2, '0', single_pole_iir_filter_xx_1, '0']
+- [blocks_complex_to_float_0, '0', blocks_float_to_complex_0, '1']
+- [blocks_complex_to_float_0, '1', blocks_float_to_complex_0, '0']
+- [blocks_complex_to_mag_squared_0, '0', blocks_integrate_xx_0, '0']
+- [blocks_complex_to_mag_squared_0, '0', single_pole_iir_filter_xx_0, '0']
+- [blocks_complex_to_mag_squared_1, '0', single_pole_iir_filter_xx_3, '0']
+- [blocks_float_to_char_0, '0', blocks_file_sink_0, '0']
+- [blocks_float_to_complex_0, '0', virtual_sink_0, '0']
+- [blocks_float_to_short_0, '0', blocks_file_sink_0_0, '0']
+- [blocks_head_0, '0', blocks_stream_to_vector_0, '0']
+- [blocks_integrate_xx_0, '0', blocks_multiply_const_vxx_4, '0']
+- [blocks_integrate_xx_1, '0', single_pole_iir_filter_xx_4, '0']
+- [blocks_keep_one_in_n_0, '0', blocks_multiply_const_vxx_3, '0']
+- [blocks_keep_one_in_n_1, '0', blocks_add_xx_0, '0']
+- [blocks_keep_one_in_n_2, '0', blocks_multiply_const_vxx_5, '0']
+- [blocks_keep_one_in_n_3, '0', blocks_vector_to_stream_1, '0']
+- [blocks_multiply_const_vxx_0, '0', blocks_add_xx_2, '0']
+- [blocks_multiply_const_vxx_1, '0', blocks_sub_xx_0, '1']
+- [blocks_multiply_const_vxx_2, '0', blocks_add_xx_2, '1']
+- [blocks_multiply_const_vxx_3, '0', blocks_add_xx_1, '0']
+- [blocks_multiply_const_vxx_4, '0', virtual_sink_3, '0']
+- [blocks_multiply_const_vxx_5, '0', blocks_vector_to_stream_0, '0']
+- [blocks_stream_to_vector_0, '0', fft_vxx_0_0, '0']
+- [blocks_stream_to_vector_1, '0', blocks_abs_xx_0, '0']
+- [blocks_stream_to_vector_2, '0', fft_vxx_0, '0']
+- [blocks_sub_xx_0, '0', blocks_abs_xx_1, '0']
+- [blocks_tags_strobe_0, '0', blocks_add_xx_0, '1']
+- [blocks_vector_to_stream_0, '0', blocks_integrate_xx_1, '0']
+- [blocks_vector_to_stream_1, '0', Folder_Block, '0']
+- [copyblock, '0', blocks_complex_to_float_0, '0']
+- [copyblock, '0', blocks_keep_one_in_n_1, '0']
+- [fft_vxx_0, '0', blocks_complex_to_mag_squared_1, '0']
+- [fft_vxx_0_0, '0', blocks_complex_to_mag_squared_0, '0']
+- [osmo_radio, '0', copyblock, '0']
+- [single_pole_iir_filter_xx_0, '0', virtual_sink_2, '0']
+- [single_pole_iir_filter_xx_1, '0', blocks_multiply_const_vxx_1, '0']
+- [single_pole_iir_filter_xx_2, '0', fft_probe, '0']
+- [single_pole_iir_filter_xx_3, '0', analysis_probe, '0']
+- [single_pole_iir_filter_xx_4, '0', blocks_stream_to_vector_2, '0']
+- [virtual_source_0, '0', blocks_head_0, '0']
+- [virtual_source_1, '0', blocks_multiply_const_vxx_0, '0']
+- [virtual_source_1_0, '0', single_pole_iir_filter_xx_2, '0']
+- [virtual_source_2, '0', blocks_keep_one_in_n_0, '0']
+- [virtual_source_3, '0', blocks_add_xx_1, '1']
+- [virtual_source_4, '0', blocks_keep_one_in_n_2, '0']
+
+metadata:
+  file_format: 1
+  grc_version: 3.9.8.0
